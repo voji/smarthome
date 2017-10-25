@@ -1,0 +1,33 @@
+/*
+ * Configuration items - conf
+ */
+
+Switch confWakeupLight		 "Wakeup light"				<light>	 (grpConfig)
+Switch confVacation			 "Vacation mode [%s]"		<house>	 (grpConfig)
+Switch confPredictBasedTempLivingroom 	 "Predict based livingroom temp" (grpConfig, grpHeaterLivingroom)
+Switch confPredictBasedTempDungeon 	 "Predict based dungeon temp " 			  (grpConfig, grpHeaterDungeon)
+Switch confPredictBasedTempBoiler 	 "Predict based dungeon temp " 			  (grpConfig, grpHeaterBoiler)
+
+Number confActiveTempLivingroom 	 "LivingRom AutoTemp occupied value [%.1f °C]" (grpConfig, grpHeaterLivingroom)
+Number confActiveTempDungeon 	     "Dungeon AutoTemp occupied value [%.1f °C]" (grpConfig, grpHeaterDungeon)
+Number confActiveTempBoiler 	     "Boiler AutoTemp active value [%.1f °C]" (grpConfig, grpHeaterBoiler)
+
+Number confPassiveTempLivingroom 	 "LivingRoom AutoTemp leave value [%.1f °C]" 	 (grpConfig, grpHeaterLivingroom)
+Number confPassiveTempDungeon 		 "Dungeon AutoTemp leave value [%.1f °C]" 	 (grpConfig, grpHeaterDungeon)
+Number confPassiveTempBoiler 		 "Boiler AutoTemp passive value [%.1f °C]" 	 (grpConfig, grpHeaterBoiler)
+
+Number confVacationTempLivingroom 	 "LivingRoom AutoTemp vacation value [%.1f °C]" (grpConfig, grpHeaterLivingroom)
+Number confVacationTempDungeon 	     "Dungeon AutoTemp vacation value [%.1f °C]" (grpConfig, grpHeaterDungeon)
+Number confVacationTempBoiler 	     "Boiler AutoTemp vacation value [%.1f °C]" (grpConfig, grpHeaterBoiler)
+
+Number confActiveHystLivingroom 	 "LivingRoom AutoTemp hysteresis occupied value [%.1f °C]" (grpConfig, grpHeaterLivingroom)
+Number confActiveHystDungeon 	     "Dungeon AutoTemp hysteresis occupied value [%.1f °C]" (grpConfig, grpHeaterDungeon)
+Number confActiveHystBoiler 	     "Boiler AutoTemp hysteresis active value [%.1f °C]" (grpConfig, grpHeaterBoiler)
+
+Number confPassiveHystLivingroom 	 "LivingRoom AutoTemp hysteresis leave value [%.1f °C]" 	 (grpConfig, grpHeaterLivingroom)
+Number confPassiveHystDungeon 		 "Dungeon AutoTemp hysteresis leave value [%.1f °C]" 	 (grpConfig, grpHeaterDungeon)
+Number confPassiveHystBoiler 		 "Boiler AutoTemp hysteresis passive value [%.1f °C]" 	 (grpConfig, grpHeaterBoiler)
+
+Number confVacationHystLivingroom 	 "LivingRoom AutoTemp hysteresis vacation value [%.1f °C]" (grpConfig, grpHeaterLivingroom)
+Number confVacationHystDungeon 	     "Dungeon AutoTemp hysteresis vacation value [%.1f °C]" (grpConfig, grpHeaterDungeon)
+Number confVacationHystBoiler 	     "Boiler AutoTemp hysteresis vacation value [%.1f °C]" (grpConfig, grpHeaterBoiler)

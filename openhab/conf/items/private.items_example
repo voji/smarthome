@@ -1,0 +1,2 @@
+Switch Sh_VojiPcWol					"Voji-Pc WoL" 				<computer>	(grpNetwork)	{ wol="192.168.1.255#XX:XX:XX:XX:XX:XX" , autoupdate="false"}
+Switch Sh_MediaPcWol				"Media-Pc WoL" 				<computer>	(grpNetwork)	{ wol="192.168.1.255#XX:XX:XX:XX:XX:XX" , autoupdate="false"}

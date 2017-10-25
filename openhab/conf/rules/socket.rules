@@ -1,0 +1,50 @@
+
+rule "OnSunriseTurnOnAquaLight"
+when 
+	//Item astSunriseEvent changed to ON
+	Time cron "0 0 10 1/1 * ? *"
+then
+	socAquaLight.sendCommand(ON)
+end
+
+rule "OnSunsetTurnOffAquaLight"
+when 
+	//Item astSunsetEvent changed to ON
+	Time cron "0 0 22 1/1 * ? *"
+then
+	socAquaLight.sendCommand(OFF)
+end
+
+rule "OnMorningTurnOffAquaFilter"
+when 
+	//Item astSunsetEvent changed to ON
+	Time cron "0 0 08 1/1 * ? *"
+then
+	if (locSomeAtHome.state == ON) {
+		socAquaFilter.sendCommand(OFF)
+	}
+end
+
+
+rule "OnMidnightTurnOnAquaFilter"
+when 
+	//Item astSunsetEvent changed to ON
+	Time cron "0 0 23 1/1 * ? *"
+then
+	socAquaFilter.sendCommand(ON)
+end
+
+rule "HomeStatusChanged"
+when 
+	Item locSomeAtHome changed
+then
+		if (locSomeAtHome.state == ON) {
+			logInfo("rules.socket", "Someone arriving at home, turning off aqua air pump")
+			sendCommand(socAquaAir, OFF)
+			sendCommand(socAquaFilter, OFF)
+		} else {		
+	    	logInfo("rules.socket", "Nobody at home,  starting aqua pump")	    	
+	    	sendCommand(socAquaAir, ON)
+	    	sendCommand(socAquaFilter, ON)			
+		}
+end

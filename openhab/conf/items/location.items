@@ -1,0 +1,20 @@
+/*
+ * Location items - loc
+ */
+Switch 		locSomeAtHome	   	"Someone at home [%s]" <house> (grpLocation)
+
+String   	locMqttPositionVoji "Voji Location Raw Data"   { mqtt="<[mq:owntracks/voji/voji_phone:state:default]" }
+Location 	locVoji 			"Voji Location"					(grpLocation, grpLocationMaps)
+Number 		locVojiDistFromHome "Voji distance from home [%.1f m]"		(grpLocation)
+Switch 		locVojiAtHome		"Voji at home [%s]"	<phone>		(grpLocation)	
+DateTime 	locVojiLastUpdate 	"Voji update: [%1$ta %1$tR]" <clock> (grpLocation)  
+
+String   	locMqttPositionAgi  "Agi Location Raw Data"   { mqtt="<[mq:owntracks/agi/agi_phone:state:default]" }
+Location 	locAgi 				"Agi Location"					(grpLocation, grpLocationMaps)
+Number 		locAgiDistFromHome  "Agi distance from home [%.1f m]"		(grpLocation)
+Switch 		locAgiAtHome		"Agi at home [%s]"	<phone>		(grpLocation)
+DateTime 	locAgiLastUpdate 	"Agi update: [%1$ta %1$tR]" <clock> (grpLocation)
+
+DateTime 	locArrivingTime 	"Last arriving time: [%1$ta %1$tR]" <clock> (grpLocation)
+DateTime 	locLeavingTime 		"Last leaving time: [%1$ta %1$tR]" <clock> (grpLocation)
+

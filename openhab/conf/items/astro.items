@@ -1,0 +1,9 @@
+/* 
+ * Astro - ast
+ */
+ 
+DateTime astSunriseTime  "Sunrise [%1$tH:%1$tM]" <sun>	(grpAstro)	{ channel = "astro:sun:home:rise#start" }
+DateTime astSunsetTime   "Sunset [%1$tH:%1$tM]"  <moon> (grpAstro)	{ channel = "astro:sun:home:set#end" }
+
+Switch astSunriseEvent   { channel = "astro:sun:home:rise#start" }
+Switch astSunsetEvent    { channel = "astro:sun:home:set#end" }

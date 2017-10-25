@@ -1,0 +1,12 @@
+/*
+ * Developement - dev
+ */
+
+Switch devDumpPredictionMap		"Dump prediction maps"				(grpDevelopement)
+Switch devInitPredictionMap	    "Initialize prediction maps"		(grpDevelopement)
+Switch devResetPredictionMap	"Reset prediction maps"				(grpDevelopement)
+Switch devUpdatePredictionMap	"Update prediction maps"			(grpDevelopement)
+Switch devDateDiff				"Test datedif"						(grpDevelopement)
+Switch devResetStats			"Reset saved stats"					(grpDevelopement)
+
+Switch devNotificationTest	"Test notification"						(grpDevelopement)

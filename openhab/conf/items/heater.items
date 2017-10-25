@@ -1,0 +1,35 @@
+/*
+ * Heating - ht
+ */
+Number htTempLivingroom 		"Living room temp [%.1f °C]"			<temperature>	(grpLivingroom, grpHeaterLivingroom)	{ mqtt="<[mq:wemos_livingroom_temp:state:default]" }
+Number htTempDungeon 		    "Dungeon temp [%.1f °C]"			<temperature>	(grpDungeon, grpHeaterDungeon)	{ mqtt="<[mq:wemos_dungeon_temp:state:default]" }
+Number htTempBoiler 		    "Boiler temperature [%.1f °C]"		<temperature>	(grpHeating, grpHeaterBoiler)	{ mqtt="<[mq:wemos_dungeon_boiler:state:default]" }
+
+Number htDesiredTempLivingroom	"Livingroom desired temperature [%.1f °C]" <heating>		(grpHeating, grpLivingroom, grpHeaterLivingroom, grpPersist)
+Number htDesiredTempDungeon		"Dungeon desired temperature [%.1f °C]"    <heating>		(grpHeating, grpDungeon, grpHeaterDungeon, grpPersist)
+Number htDesiredTempBoiler		"Boiler desired temperature [%.1f °C]"     <heating>		(grpHeating, grpHeaterBoiler, grpPersist)
+
+Number htDesiredHystLivingroom	"Livingroom desired hysteresis [%.1f °C]" <heating>		(grpHeating, grpLivingroom, grpHeaterLivingroom, grpPersist)
+Number htDesiredHystDungeon		"Dungeon desired hysteresis [%.1f °C]"    <heating>		(grpHeating, grpDungeon, grpHeaterDungeon, grpPersist)
+Number htDesiredHystBoiler		"Boiler desired hysteresis [%.1f °C]"     <heating>		(grpHeating, grpHeaterBoiler, grpPersist)
+
+Switch htRelayHeaterLivingroom	"Upper level heater [%s]"				<smartheater>	(grpHeating, grpHeaterLivingroom)	{ mqtt=">[mq:wemos_dungeon_relay0:state:*:default]" }
+Switch htRelayHeaterDungeon		"Dungeon heater [%s]" 					<smartheater>	(grpHeating, grpHeaterDungeon)	{ mqtt=">[mq:wemos_dungeon_relay1:state:*:default]" }
+Switch htRelayHeaterBoiler		"Dungeon Boiler [%s]" 					<smartheater>	(grpHeating, grpHeaterBoiler)	{ mqtt=">[mq:wemos_dungeon_relay2:state:*:default]" }
+
+
+DateTime htRelayHeaterLastUpdateLivingroom	"Upper level heater last upd [%1$ta %1$tR]"	<smartheater>	(grpHeating, grpHeaterLivingroom, grpPersist)
+DateTime htRelayHeaterLastUpdateDungeon	"Dungeon heater last upd [%1$ta %1$tR]"	<smartheater>	(grpHeating, grpHeaterDungeon, grpPersist)
+DateTime htRelayHeaterLastUpdateBoiler	"Boiler last upd [%1$ta %1$tR]"	<smartheater>	(grpHeating, grpHeaterBoiler, grpPersist)
+
+
+Number htHumLivingroom 		    "Living room humidity [%.1f %%]"		<temperature>	(grpLivingRoom)	{ mqtt="<[mq:wemos_livingroom_hum:state:default]" }
+Number htHumDungeon 		    "Dungon humidity [%.1f %%]"		<temperature>	(grpDungeon)	{ mqtt="<[mq:wemos_dungeon_hum:state:default]" }
+
+Number htTempDiffLivingroom				"Living room temp diff [%.3f °C]"
+Number htTempDiffDungeon				"Dungeon temp diff [%.3f °C]"
+
+Number htTempChartPeriod 		"Chart period" (grpPersist)
+
+Switch 	htClearLivingroomTempCache  "Clear Livingroom WemosD1 temp cache"	<temperature>		{ mqtt=">[mq:wemos_livingroom_resettc:state:*:default]" }
+Switch 	htClearDungeonTempCache  "Clear Dungeon WemosD1 temp cache"	<temperature>		{ mqtt=">[mq:wemos_dungeon_resettc:state:*:default]" }

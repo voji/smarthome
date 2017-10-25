@@ -1,0 +1,122 @@
+var Timer homeLeaveTimer = null
+
+/*
+ * process mqtt location message
+ */
+val Functions$Function1<StringItem, Boolean> processLocationMsg = [
+    StringItem mqttLocationMsg 
+    |
+	val String locationStr = callScript("location")
+    val PointType homeLocation = new PointType(locationStr)
+    val int homeRange = 300
+    val String userName=mqttLocationMsg.name.substring(15)
+    val String locItemName="loc"+userName
+    val String distanceItemName=locItemName+"DistFromHome"
+    val String locAtHomeItemName=locItemName+"AtHome"
+    val String locUpdateItemName=locItemName+"LastUpdate"
+    val LocationItem locationItem = grpLocation.members.findFirst[ name.equals(locItemName) ] as LocationItem
+    
+    val NumberItem distanceItem = grpLocation.members.findFirst[ name.equals(distanceItemName) ] as NumberItem
+    
+    val SwitchItem atHomeItem =  grpLocation.members.findFirst[ name.equals(locAtHomeItemName) ] as SwitchItem
+    val DateTimeItem updateTimeItem =  grpLocation.members.findFirst[ name.equals(locUpdateItemName) ] as DateTimeItem    
+    
+	val String json = (mqttLocationMsg.state as StringType).toString    	
+    /*
+     * {"_type":"location","lat":77.4484713,"lon":88.9011735,"tst":1458648216,"acc":33,"batt":27,"tid":"ne"}
+     */
+    val String type = transform("JSONPATH", "$._type", json)
+    if (type == "location") {
+      val String lat  = transform("JSONPATH", "$.lat", json)
+      val String lon  = transform("JSONPATH", "$.lon", json)
+      val String acc  = transform("JSONPATH", "$.acc", json)
+      //val String batt = transform("JSONPATH", "$.batt", json)
+   	  val PointType locationPoint = new PointType(lat + "," + lon)
+      if (locationItem!=null) {
+      	locationItem.sendCommand(locationPoint)      
+      } else {	
+      	logInfo("rules.location", "Unable to update location, because item not found: " + locItemName)
+      }
+      val Integer accuracy = new Integer(acc) 
+      val DecimalType homeDist = homeLocation.distanceFrom(locationPoint)
+      logInfo("rules.location", "Updating location: " + userName + " Dist: " + homeDist.doubleValue + " Acc: "+ accuracy)
+      if (homeDist.intValue > homeRange + accuracy) {
+      	atHomeItem.sendCommand(OFF)
+      } else {
+      	atHomeItem.sendCommand(ON)
+      }
+      
+      if (distanceItem!=null) {      	
+      	distanceItem.state = homeDist
+      } else {
+      	logInfo("rules.location", "Unable to update distance, because item not found: " + distanceItemName)      	
+      }
+      
+      updateTimeItem.sendCommand(new DateTimeType())    
+    }	else if (type == "lwt") {
+      	 //lwt event, do nothing
+	} else {	 
+		logInfo("rules.location", "Unknown location message. Type: " + type)    
+    }
+    return true
+]
+
+
+rule "VojisMqttLocationRecieved"
+  when 
+    Item locMqttPositionVoji changed
+  then
+    processLocationMsg.apply(locMqttPositionVoji)
+end
+
+
+rule "AgisMqttLocationRecieved"
+  when 
+    Item locMqttPositionAgi changed
+  then
+    processLocationMsg.apply(locMqttPositionAgi)
+end
+
+rule "MqttLocationChanged"
+  when 
+    Item locVojiAtHome changed
+    or 
+    Item locAgiAtHome changed
+  then
+  	//handle unindentified states too
+    val boolean vojiathome= (locVojiAtHome.state == ON)
+    val boolean agiathome= (locAgiAtHome.state == ON)
+    val boolean someoneathome = vojiathome || agiathome
+
+   	if (homeLeaveTimer != null) {
+		//if someone arriving or reaariving home, in leave greace perioid do nothing			 			
+		logInfo("rules.location", "Location change during greace perioid, leave timer disabled.")
+   		homeLeaveTimer.cancel
+   		homeLeaveTimer = null
+	}
+
+	
+    if (someoneathome && locSomeAtHome.state!=ON) {
+   		sendCommand(locSomeAtHome, ON)   		
+   		locArrivingTime.sendCommand(new DateTimeType())
+    } else if (!someoneathome && locSomeAtHome.state!=OFF) {
+    	logInfo("rules.location", "Leave timer created")
+    	homeLeaveTimer = createTimer(now.plusMinutes(8)) [|    		
+			homeLeaveTimer = null
+			sendCommand(locSomeAtHome, OFF)
+			val DateTimeType cdate = new DateTimeType()
+			cdate.calendar.setTime(now.minusMinutes(8).toDate)
+			locLeavingTime.sendCommand(cdate)
+		]
+    }    
+end
+
+rule "HomeStatusChanged"
+when 
+	Item locSomeAtHome changed to ON
+then	
+	if (confVacation.state == ON) {
+		logInfo("default.rules", "Someone arriving home, turning off vacation mode")
+		confVacation.setState(OFF)
+	}
+end

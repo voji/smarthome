@@ -1,0 +1,46 @@
+rule "VojiPcStartedNetwork"
+when 
+	Item Sh_VojiPcIsUp changed to ON
+then
+	logInfo("rules.network", "Voji pc on, pausing torrent download, limiting bandwith.")
+	Sh_SrvBtExec.sendCommand(ON)
+end
+
+rule "VojiPcStoppedNetwork"
+when 
+	Item Sh_VojiPcIsUp changed to OFF
+then
+	logInfo("rules.network", "Voji pc off, resuming torrent download.")
+	Sh_SrvBtExec.sendCommand(OFF)
+end
+
+rule "TurnOnVojiPcByEvent"
+when 
+	Item socStudio changed to ON
+	or
+	Item socRaceSimulator changed to ON
+then
+	if  (Sh_VojiPcIsUp.state != ON) {
+		Sh_VojiPcWol.sendCommand(ON)
+	}
+end
+
+rule "LivingroomWemosBooted" 
+when
+Item Sh_LivingroomWemosState changed to ON 
+then 
+	socAquaAir.postUpdate(socAquaAir.state)
+	socAquaLight.postUpdate(socAquaLight.state)
+	socAquaFilter.postUpdate(socAquaFilter.state)
+	Sh_LivingroomWemosState.postUpdate(OFF)
+end
+
+rule "DungeonWemosBooted" 
+when
+Item Sh_DungeonWemosState changed to ON 
+then 
+	htRelayHeaterLivingroom.postUpdate(htRelayHeaterLivingroom.state)
+	htRelayHeaterDungeon.postUpdate(htRelayHeaterDungeon.state)
+	htRelayHeaterBoiler.postUpdate(htRelayHeaterBoiler.state)
+	Sh_DungeonWemosState.postUpdate(OFF)
+end  

@@ -1,0 +1,25 @@
+rule Startup
+when 
+   System started
+then
+	logInfo("rules.default", "System started.")
+	logInfo("rules.default", "Clear livingroom temperature cache.")
+	htClearLivingroomTempCache.postUpdate("ON")
+	htClearDungeonTempCache.postUpdate("ON")
+	logInfo("rules.default", "Clear living room wemos d1 state")
+	Sh_LivingroomWemosState.postUpdate("OFF")
+	Sh_DungeonWemosState.postUpdate("OFF")
+	prdPredictionLivingroom.postUpdate(ON)
+	prdPredictionDungeon.postUpdate(ON)
+	prdPredictionBoiler.postUpdate(ON)
+end
+
+rule Shutdown
+when 
+   System shuts down
+then
+	logInfo("rules.default", "System stopped.")
+end
+
+
+

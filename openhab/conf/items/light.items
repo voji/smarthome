@@ -1,0 +1,16 @@
+/*
+ * Lights - light
+ */
+
+Dimmer lightFrontdoor    	"Frontdoor brightness [%s %%]"			(grpOutdoor, grpLightB)				{milight="bridge1;1;brightness"}
+Dimmer lightFrontdoorC      "Frontdoor color temp [%s %%]"			(grpOutdoor)						{milight="bridge1;1;colorTemperature"}
+
+Dimmer lightBedroomLeft   	"Bedroom's light (Pali) [%s %%]"		(grpBedroom, grpLightB)			{milight="bridge1;3;brightness"}
+Dimmer lightBedroomLeftC   	"Bedroom's color temp (L) [%s %%]"		(grpBedroom)					{milight="bridge1;3;colorTemperature"}
+
+Dimmer lightBedroomRight   "Bedroom's light (Agi) [%s %%]"		(grpBedroom, grpLightB)			{milight="bridge1;4;brightness"}
+Dimmer lightBedroomRightC   "Bedroom's color temp (R) [%s %%]"		(grpBedroom)					{milight="bridge1;4;colorTemperature"}
+
+Dimmer lightLivingRoom   	"Living room's brightness [%s %%]"		(grpLivingroom, grpLightB)	 	{milight="bridge1;6;brightness"}
+Color  lightLivingRoomC 	"Living room's color [%s %%]"   		<colorwheel> (grpLivingRoom)    { milight="bridge1;6;rgb" }
+

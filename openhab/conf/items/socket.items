@@ -1,0 +1,9 @@
+/* 
+ * Sockets items - soc
+ */
+
+
+Switch socAquaAir		"Aquarium air pump"	<socket>	(grpLivingroom, grpSocket)		{ mqtt=">[mq:wemos_livingroom_relay0:state:*:default]" }
+Switch socAquaLight		"Aquarium lamp"		<socket>	(grpLivingroom, grpSocket)		{ mqtt=">[mq:wemos_livingroom_relay1:state:*:default]" }
+Switch socAquaFilter	"Aquarium filter"	<socket>	(grpLivingroom, grpSocket)		{ mqtt=">[mq:wemos_livingroom_relay2:state:*:default]" }
+

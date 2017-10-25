@@ -1,0 +1,10 @@
+/* 
+ * Sockets items - wat
+ */
+
+Switch watGarden0		"Front garden"	<socket>	(grpOutdoor)		{ mqtt=">[mq:wemos_garden_relay3:state:*:default]" } 
+Switch watGarden1		"Garden mid 1"	<socket>	(grpOutdoor)		{ mqtt=">[mq:wemos_garden_relay0:state:*:default]" }
+Switch watGarden2		"Garden mid 2"	<socket>	(grpOutdoor)		{ mqtt=">[mq:wemos_garden_relay1:state:*:default]" }
+Switch watGarden3		"Garden mid 3"	<socket>	(grpOutdoor)		{ mqtt=">[mq:wemos_garden_relay4:state:*:default]" }  
+Switch watGarden4		"Garden U"		<socket>	(grpOutdoor)		{ mqtt=">[mq:wemos_garden_relay2:state:*:default]" }
+

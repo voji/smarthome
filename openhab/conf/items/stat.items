@@ -1,0 +1,14 @@
+/* 
+ * Stat items - stat
+ */
+String   	statTempLivingroom			(grpStat) 
+String   	statTempDungeon  		    (grpStat)
+String   	statDesiredTempLivingroom	(grpStat)
+String   	statDesiredTempDungeon		(grpStat)
+String 		statRelayHeaterLivingroom	(grpStat)
+String 		statRelayHeaterDungeon		(grpStat)
+String 		statRelayHeaterBoiler		(grpStat)
+String 		statAgiAtHome				(grpStat)
+String		statVojiAtHome 				(grpStat)
+String		statSomeAtHome 				(grpStat)
+String		statVojiPcIsUp 				(grpStat)

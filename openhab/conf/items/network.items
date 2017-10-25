@@ -1,0 +1,9 @@
+/*
+ * Network items - net
+ */
+
+Switch Sh_VojiPcIsUp				"Voji-Pc status [%s]" 		<computer>	(grpNetwork)	{ mqtt="<[mq:network/voji-pc/status:state:default]" }																							  
+Switch Sh_SrvBtExec					"Torrent download limiter"  <dryer> { exec=">[ON:/etc/openhab2/scripts/qbtlimit.sh@@ON] >[OFF:/etc/openhab2/scripts/qbtlimit.sh@@OFF]" }
+
+Switch Sh_LivingroomWemosState      "Init living room wemos d1" <computer> { mqtt="<[mq:wemos_livingroom_online:state:default]" }
+Switch Sh_DungeonWemosState         "Init dungeon wemos d1" <computer> { mqtt="<[mq:wemos_dungeon_online:state:default]" }

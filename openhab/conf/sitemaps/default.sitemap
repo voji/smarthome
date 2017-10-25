@@ -1,0 +1,185 @@
+sitemap default label="szivu6"
+{	
+	Frame label="Quick  access"{
+		Switch item=confVacation	visibility=[confVacation==ON] labelcolor=[ON="green"]
+		Slider item=lightFrontdoor
+		Slider item=lightLivingRoom
+		Setpoint item=lightBedroomLeft minValue=0 maxValue=100 step=10
+		Setpoint item=lightBedroomRight minValue=0 maxValue=100 step=10		
+		Setpoint item=htDesiredTempLivingroom icon="heating" minValue=10 maxValue=26 step=0.5
+		Setpoint item=htDesiredTempDungeon icon="heating" minValue=10 maxValue=26 step=1
+		Switch item=Sh_VojiPcWol icon="computer" label="Voji Pc" mappings=[ON="Wake!"]
+	}
+	
+	Frame label="Rooms"{		
+		Group item=grpBedroom
+		Group item=grpLivingroom
+		Group item=grpOutdoor
+	}
+	
+	Frame label="Information"{		
+
+		Text label="Location" icon="video" {
+			Text item=locSomeAtHome	
+			Text item=prdPredictionLivingroom
+			Text item=locArrivingTime
+			Text item=locLeavingTime
+			Switch item=locVojiAtHome
+			Text item=locVojiDistFromHome
+			Text item=locVojiLastUpdate valuecolor=[>6000="red",>600="orange",<=600="green"]
+			Switch item=locAgiAtHome
+			Text item=locAgiDistFromHome			
+			Text item=locAgiLastUpdate valuecolor=[>6000="red",>600="orange",<=600="green"]
+			Group item=grpLocationMaps			
+		}
+							
+		Text label="Network" icon="network" {			
+			Switch item=Sh_VojiPcWol icon="computer" mappings=[ON="Wake!"]
+			Switch item=Sh_MediaPcWol icon="computer"  mappings=[ON="Wake!"]
+			Text item=Sh_VojiPcIsUp
+			Switch item=Sh_SrvBtExec
+			
+		}
+		
+		Text label="Temperatures" icon="temperature" {
+			Frame label="Room temperatures" icon="temperature" {
+				Text item=htTempLivingroom
+				Text item=htHumLivingroom
+				Text item=htTempDungeon
+				Text item=htHumDungeon
+				Text item=htTempBoiler
+			}			
+			Frame label="Heater control" icon="temperature" {				
+				Text item=htDesiredTempLivingroom
+				Text item=htDesiredHystLivingroom
+				Text item=htDesiredTempDungeon
+				Text item=htDesiredHystDungeon
+				Text item=htDesiredTempBoiler
+				Text item=htDesiredHystBoiler
+				Switch item=htRelayHeaterLivingroom
+				Switch item=htRelayHeaterDungeon
+				Switch item=htRelayHeaterBoiler
+				Text item=htRelayHeaterLastUpdateLivingroom
+				Text item=htRelayHeaterLastUpdateDungeon
+				Text item=htRelayHeaterLastUpdateBoiler
+				Text item=htTempDiffLivingroom
+				Text item=htTempDiffDungeon
+			}			
+			Frame label="Prediction" icon="cellar" {
+				Text item=locSomeAtHome
+				Text item=prdPredictionLivingroom
+				Text item=prdPredictionBoiler
+				Text item=Sh_VojiPcIsUp
+				Text item=prdPredictionDungeon
+			}
+		}
+		
+		Text label="Temperature graphs" icon="temperature" {
+			Frame label="Living room temperature" icon="temperature" {
+				Chart item=htTempLivingroom period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htTempLivingroom period=D visibility=[htTempChartPeriod==1]
+				Chart item=htTempLivingroom period=W visibility=[htTempChartPeriod==2]				
+			}	
+			Frame label="Livingroom desired temperature" icon="temperature" {
+				Chart item=htDesiredTempLivingroom period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htDesiredTempLivingroom period=D visibility=[htTempChartPeriod==1]
+				Chart item=htDesiredTempLivingroom period=W visibility=[htTempChartPeriod==2]
+			}
+			Frame label="Livingroom heating state" icon="temperature" {
+				Chart item=htRelayHeaterLivingroom period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htRelayHeaterLivingroom period=D visibility=[htTempChartPeriod==1]
+				Chart item=htRelayHeaterLivingroom period=W visibility=[htTempChartPeriod==2]
+			}
+			Frame label="Livingroom temp diff" icon="temperature" {
+				Chart item=htTempDiffLivingroom period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htTempDiffLivingroom period=D visibility=[htTempChartPeriod==1]
+				Chart item=htTempDiffLivingroom period=W visibility=[htTempChartPeriod==2]
+			}						
+			Frame label="Dungeon temperature" icon="temperature" {
+				Chart item=htTempDungeon period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htTempDungeon period=D visibility=[htTempChartPeriod==1]
+				Chart item=htTempDungeon period=W visibility=[htTempChartPeriod==2]				
+			}	
+			Frame label="Dungeon desired temperature" icon="temperature" {
+				Chart item=htDesiredTempDungeon period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htDesiredTempDungeon period=D visibility=[htTempChartPeriod==1]
+				Chart item=htDesiredTempDungeon period=W visibility=[htTempChartPeriod==2]
+			}
+			Frame label="Dungeon heating state" icon="temperature" {
+				Chart item=htRelayHeaterDungeon period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htRelayHeaterDungeon period=D visibility=[htTempChartPeriod==1]
+				Chart item=htRelayHeaterDungeon period=W visibility=[htTempChartPeriod==2]
+			}
+			Frame label="Dungeon temp diff" icon="temperature" {
+				Chart item=htTempDiffDungeon period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htTempDiffDungeon period=D visibility=[htTempChartPeriod==1]
+				Chart item=htTempDiffDungeon period=W visibility=[htTempChartPeriod==2]
+			}
+			Frame label="Boiler temperature" icon="temperature" {
+				Chart item=htTempBoiler period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htTempBoiler period=D visibility=[htTempChartPeriod==1]
+				Chart item=htTempBoiler period=W visibility=[htTempChartPeriod==2]				
+			}
+			Frame label="Boiler heating state" icon="temperature" {
+				Chart item=htRelayHeaterBoiler period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htRelayHeaterBoiler period=D visibility=[htTempChartPeriod==1]
+				Chart item=htRelayHeaterBoiler period=W visibility=[htTempChartPeriod==2]
+			}
+			
+			
+			Frame label="Setup" {
+				Switch item=htTempChartPeriod label="Chart Period" mappings=[0="Hour", 1="Day", 2="Week"]
+			}			
+		}
+				
+	}
+		
+	Frame label="Config" {
+		Text label="Setup..." icon="office" {
+			Switch item=confVacation
+			Switch item=confWakeupLight
+			
+			Switch item=confPredictBasedTempLivingroom 
+			Setpoint item=confActiveTempLivingroom icon="heating" minValue=10 maxValue=26 step=0.5
+			Setpoint item=confActiveHystLivingroom icon="heating" minValue=0.5 maxValue=10 step=0.5
+			Setpoint item=confPassiveTempLivingroom icon="heating" minValue=10 maxValue=26 step=1
+			Setpoint item=confPassiveHystLivingroom icon="heating" minValue=1 maxValue=10 step=1
+			Setpoint item=confVacationTempLivingroom icon="heating" minValue=10 maxValue=26 step=1
+			Setpoint item=confVacationHystLivingroom icon="heating" minValue=1 maxValue=10 step=1
+			
+			Switch item=confPredictBasedTempDungeon
+			Setpoint item=confActiveTempDungeon icon="heating" minValue=10 maxValue=26 step=1
+			Setpoint item=confActiveHystDungeon icon="heating" minValue=0.5 maxValue=10 step=0.5
+			Setpoint item=confPassiveTempDungeon icon="heating" minValue=10 maxValue=26 step=1
+			Setpoint item=confPassiveHystDungeon icon="heating" minValue=1 maxValue=10 step=1
+			Setpoint item=confVacationTempDungeon icon="heating" minValue=10 maxValue=26 step=1
+			Setpoint item=confVacationHystDungeon icon="heating" minValue=1 maxValue=10 step=1
+			
+			Switch item=confPredictBasedTempBoiler
+			Setpoint item=htDesiredTempBoiler icon="heating" minValue=10 maxValue=70 step=5
+			Setpoint item=confActiveTempBoiler icon="heating" minValue=10 maxValue=70 step=5
+			Setpoint item=confActiveHystBoiler icon="heating" minValue=5 maxValue=20 step=5
+			Setpoint item=confPassiveTempBoiler icon="heating" minValue=10 maxValue=70 step=5
+			Setpoint item=confPassiveHystBoiler icon="heating" minValue=5 maxValue=20 step=5
+			Setpoint item=confVacationTempBoiler icon="heating" minValue=10 maxValue=70 step=5
+			Setpoint item=confVacationHystBoiler icon="heating" minValue=5 maxValue=20 step=5
+			
+			
+			
+			
+			Switch item=htClearLivingroomTempCache mappings=[ON="Clear"]
+			Switch item=htClearDungeonTempCache mappings=[ON="Clear"]
+		}
+	}
+			
+	Frame label="Astro"{	
+		Text item=astSunriseTime
+		Text item=astSunsetTime
+	}
+
+	Frame label="Developement" {
+		Group item=grpDevelopement
+	}
+	
+		
+}

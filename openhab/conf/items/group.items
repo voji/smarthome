@@ -1,0 +1,27 @@
+/* 
+ * Group items - grp
+ */
+Group grpAll
+
+Group grpOutdoor 				"Outdoor..." 		<outdoor>	(grpAll)
+Group grpLivingroom 			"Living Room..." 	<video>		(grpAll)
+Group grpDungeon 				"Dungeon..."    	<video>		(grpAll)
+Group grpBedroom 				"Bedroom..." 		<bedroom>	(grpAll)
+Group grpNetwork 				"Network..." 		<network>	(grpAll)
+Group grpHeating 				"Heating..." 		<heating>	(grpAll)
+Group grpLocation 				"Location..." 		<video>		(grpAll)
+Group grpConfig 				"Configs..." 		<office>	(grpAll)
+Group grpDevelopement 			"Test..." 			<fire>		(grpAll)
+Group grpLightB					"Light brightness" 				(grpAll)
+Group grpLocationMaps			"Location maps" 				(grpAll)
+Group grpStat					"Stat items" 					(grpAll)
+Group grpAstro					"Astro items"		<moon>		(grpAll)
+Group grpPersist				"Persist items"					(grpAll)
+Group grpHeaterLivingroom		"LivingRoom heater..."     		(grpAll)
+Group grpHeaterDungeon 			"Dungeon heater..."     		(grpAll)
+Group grpHeaterBoiler 			"Boiler heater..."     		(grpAll)
+
+
+/* active groups */
+Group:Switch:OR(ON, OFF) 		grpLight 		"All Lights  [(%d)]" 	<light>			(grpAll)
+Group:Switch:OR(ON, OFF)		grpSocket		"All Sockets [(%d)]" 	<socket>		(grpAll)

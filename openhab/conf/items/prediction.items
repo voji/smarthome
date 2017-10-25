@@ -1,0 +1,12 @@
+/*
+ * Prediction items - prd
+ */
+ 
+String 		prdHistory			"Location history: [%s]" (grpPersist)
+Switch 		prdPredictionLivingroom		"Predicted home state: [%s]" (grpHeaterLivingroom)
+
+String 		prdVojiPcHistory	"VojiPc history: [%s]" (grpPersist) 
+Switch 		prdPredictionDungeon	"Predicted VojiPc state: [%s]" (grpHeaterDungeon)
+
+String 		prdBoilerHistory	"Boiler history: [%s]" (grpPersist) 
+Switch 		prdPredictionBoiler	"Predicted boiler state: [%s]" (grpHeaterBoiler)

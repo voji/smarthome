@@ -1,0 +1,258 @@
+import java.util.HashMap
+import java.util.ArrayList
+
+/**  
+ key: day of a week
+ 
+ value: hour;leave count
+ */
+var Boolean prevHomeState = true
+var Boolean prevVojiPcState = true
+var Boolean prevBoilerState = true
+
+val Functions$Function3<StringItem, Boolean, SwitchItem, Boolean> makePrediction = [
+	StringItem historyMapItem,
+	Boolean prevState,
+	SwitchItem predictionTarget
+	|
+	
+	//pre execution validations
+	if (confVacation.state == ON) {
+		//logInfo("rules.prediction", "Vacation mode on, predictions disabled")
+		return false
+	}
+	val int maxWeight = 3
+	var HashMap<Integer,ArrayList<Integer>> historyMap = newHashMap()
+	
+	//revive prediction map    
+    if (historyMapItem.state == NULL) {
+    	logInfo("rules.prediction", "HistoryMap item " + historyMapItem.name + " not initialized, ignoring")
+		return false   
+	}
+	
+	//logInfo("rules.prediction", "Reading prediction map: " + historyMapItem.name)
+	{
+		val String serializedString = historyMapItem.state.toString
+		//logInfo("rules.prediction", "loaded prediction map data: "+serializedString)
+		val String[] weights=serializedString.split(";")
+		//logInfo("rules.prediction", "weights count: "+weights.size)
+		var int i = 1
+		do {
+		   	var ArrayList<Integer> dayData = newArrayList()
+		   	var int j = 0
+			do {
+				val wi = ((i-1)*24)+j
+				//logInfo("rules.prediction", "Reading leaveHistory: wi="+wi)
+				val String weight=weights.get(wi)
+				val Integer weightInt=Integer::parseInt(weight) 
+				dayData.add(weightInt)
+				//logInfo("rules.prediction", "loading leaveHistory - D: "+ i + " h: " + j + " v: " + weightInt)
+			} while ((j=j+1) < 24)
+			historyMap.put(i, dayData)	    	
+		} while ((i=i+1) < 8)
+	}
+	
+	//current date time calculation
+	logInfo("rules.prediction", "Calculate prediction: " + historyMapItem.name)
+	{
+		val int dayOfWeek=now.getDayOfWeek
+		val int hourOfDay=now.getHourOfDay
+		val ArrayList<Integer> dayData = historyMap.get(dayOfWeek)
+		var Integer weight = dayData.get(hourOfDay)
+		var boolean hasChange = false
+		//logInfo("rules.prediction", "Current weight: " + weight)
+		
+		if (prevState) {
+			if (weight < maxWeight) {
+				weight = weight + 1
+				hasChange = true
+			}
+		} else {
+		    if (weight > -maxWeight) { 
+				weight = weight - 1
+				hasChange = true
+			}
+		}
+		
+		if (hasChange == true) {
+				logInfo("rules.prediction", "updating leaveHistory: - D: "+ dayOfWeek + " h: " + hourOfDay + " v: " + weight)		
+				dayData.set(hourOfDay, weight)
+		}
+		
+		//prediction
+		var int nextWeight=0
+		if (hourOfDay==23) {
+			nextWeight = historyMap.get(dayOfWeek+1).get(0)
+		} else {
+			nextWeight = dayData.get(hourOfDay + 1)
+		}
+		
+		if (nextWeight>=0) {
+			predictionTarget.postUpdate(ON)
+			//logInfo("rules.prediction", "Predicted state of " + predictionTarget.name +": ON - "+nextWeight)
+		} else if (nextWeight<0 ) {
+			predictionTarget.postUpdate(OFF)
+			//logInfo("rules.prediction", "Predicted state of " + predictionTarget.name +": OFF - "+nextWeight)
+		}	
+	}
+	
+	//serialize predicton map to string
+	//logInfo("rules.prediction", "Save prediction map: " + historyMapItem.name)
+	var String result=""
+	var int i = 1
+	do {
+    	val ArrayList<Integer> dayData = historyMap.get(i)
+    	var int j = 0
+		do {
+			var int weight=dayData.get(j)
+			result=result+weight+";"
+			//logInfo("rules.prediction", "saving leaveHistory - D: "+ i + " h: " + j + " v: " + weight)				
+		} while ((j=j+1) < 24)			    	
+	} while ((i=i+1) < 8)		
+	
+	historyMapItem.postUpdate(result)
+	//logInfo("rules.prediction", "saved leaveHistory: "+result)
+	return true
+]
+
+val Functions$Function2<String, Integer, String> padString = [
+	String message,
+	Integer spacer
+	|
+	val int msglen = message.length
+	var int fillc = spacer-msglen
+	
+	var String result = ""
+	while (fillc>0) {
+		result += " "
+		fillc--
+	}
+
+	return result + message;
+	
+]
+
+val Functions$Function2<StringItem, Functions$Function2<String, Integer, String>, Boolean> dumpPredictionMap = [
+	StringItem historyMapItem,
+	Functions$Function2<String, Integer, String> padString
+	|
+	if (historyMapItem.state == NULL) {
+    	logInfo("rules.prediction", "HistoryMap item " + historyMapItem.name + " not initialized, initializing")
+    } else {
+    	logInfo("rules.prediction", "Reading prediction map: " + historyMapItem.name)
+		val String serializedString = historyMapItem.state.toString
+		val String[] weights=serializedString.split(";")
+		//logInfo("rules.prediction", "weights count: "+weights.size)
+		logInfo("rules.prediction", "Prediction map:")
+		val padSize = 5
+		var String header = padString.apply("Day", padSize)
+		var int i = 0
+		while (((i=i+1) < 24)) {
+			header+= padString.apply(""+i, padSize)
+		}
+		logInfo("rules.prediction", header)
+				
+		i = 0
+		while ((i=i+1) < 7) {
+			var String dayResult = padString.apply(""+i, padSize)
+	    	var int j = 0
+			while ((j=j+1) < 24) {
+				val wi = (i*24)+j
+				//logInfo("rules.prediction", "Reading leaveHistory: wi="+wi)
+				val String weight=weights.get(wi)
+				dayResult += padString.apply(weight, padSize)  
+				//logInfo("rules.prediction", "loading leaveHistory - D: "+ i + " h: " + j + " v: " + weight)
+			} 
+			logInfo("rules.prediction", dayResult)
+		} 
+    }
+    
+    return true	
+]
+
+val Functions$Function1<StringItem, Boolean> initPredictionMap = [
+	StringItem historyMapItem
+	|
+	if (historyMapItem.state != NULL) {
+		logInfo("rules.prediction", "HistoryMap item " + historyMapItem.name + "already initialized, ignoring")
+		return false
+	}
+	var String result=""
+	var int i = 1
+	do {
+    	var int j = 0
+		do {
+			result=result+"0;"
+			//logInfo("rules.prediction", "saving leaveHistory - D: "+ i + " h: " + j + " v: " + weight)				
+		} while ((j=j+1) < 24)			    	
+	} while ((i=i+1) < 8)		
+	
+	historyMapItem.postUpdate(result)
+	logInfo("rules.prediction", "HistoryMap item " + historyMapItem.name + " initialized")
+	return true
+]
+
+rule "StoreArriveEvent"
+when 
+	Item locSomeAtHome changed to ON
+then
+	prevHomeState=true
+end
+
+rule "StoreVojiPcEvent"
+when 
+	Item Sh_VojiPcIsUp changed to ON
+then
+	prevVojiPcState=true
+end
+
+rule "StoreBoilerEvent"
+when 
+	Item htRelayHeaterBoiler changed to ON
+then
+	prevBoilerState=true
+end
+
+//http://www.cronmaker.com/
+rule "UpdatePredictionMaps"
+when
+     Time cron "1 0 0/1 1/1 * ? *" or
+     Item devUpdatePredictionMap changed to ON
+then
+    makePrediction.apply(prdHistory, prevHomeState, prdPredictionLivingroom)
+    prevHomeState = false
+    
+    makePrediction.apply(prdVojiPcHistory, prevVojiPcState, prdPredictionDungeon)    
+	prevVojiPcState = false
+	
+	makePrediction.apply(prdBoilerHistory, prevBoilerState, prdPredictionBoiler)    
+	prevBoilerState = false
+end
+
+
+rule "devDumpPredictionMap"
+when
+    Item devDumpPredictionMap changed
+then
+	dumpPredictionMap.apply(prdHistory, padString)
+	//dumpPredictionMap.apply(prdVojiPcHistory)
+end
+
+rule "devResetPredictionMap"
+when
+    Item devResetPredictionMap changed
+then	
+	logInfo("rules.prediction", "It isn' a good idea")
+	//prdHistory.postUpdate("")
+	//prdVojiPcHistory.postUpdate("")
+end
+
+
+rule "devInitPredictionMaps"
+when
+    Item devInitPredictionMap changed
+then	
+	initPredictionMap.apply(prdHistory)
+	initPredictionMap.apply(prdVojiPcHistory)
+	initPredictionMap.apply(prdBoilerHistory)
+end

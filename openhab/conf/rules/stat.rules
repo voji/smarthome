@@ -1,0 +1,166 @@
+import java.util.List
+import org.joda.time.DateTime
+
+val Double doubleNullVal = new Double(0)
+
+val Functions$Function4<GenericItem, GenericItem, Boolean, Double, Boolean> processItemChange = [
+    GenericItem item,
+    GenericItem logItem,
+    Boolean numericDiff,
+    Double numTolerance
+    |    
+    
+    val String itemName=item.name
+	val String itemStateString = item.state.toString
+	val HistoricItem itemPrevStateHi = item.previousState(true)
+	var org.eclipse.smarthome.core.types.State itemPrevState = NULL;
+	if (itemPrevStateHi!=null && itemPrevStateHi!=NULL) {
+		itemPrevState = itemPrevStateHi.state;
+	}	
+	logInfo("rules.stat", "Item: " + itemName + " current state: " + itemStateString + " previous state: " + itemPrevState )
+	
+    if (logItem.state==NULL || logItem.state.toString.isEmpty()) {
+		logInfo("rules.stat", "Initializing stat: " + itemName)			    
+	    val String logMessage = itemName+";"+null+";" + now + ";"+null+";"+itemStateString+";"+0
+	    logItem.sendCommand(logMessage)
+	    logInfo("stat", logMessage)			    
+	} else {
+		val String serializedString = logItem.state.toString
+		val List<String> statValues=serializedString.split(';') 
+		val String prevItemStateString = statValues.get(4)		
+		
+		if (item.state.toString.equals(prevItemStateString)) {
+			logInfo("rules.stat", "Stat update ignored, value not changed: " + itemName)
+		} else { 
+			//determine diff
+			var Double diff = new Double(0)			
+			if (numericDiff) {				
+				val Double oldVal = new Double(prevItemStateString)
+	        	val Double newVal = new Double(itemStateString)	        		        
+	        	diff = newVal - oldVal	
+			} else {
+				if (prevItemStateString=="ON") {
+					diff = new Double(1)	
+				} else {
+					diff = new Double(-1)
+				}
+			}			
+			//tolerance check
+			if (Math.abs(diff) > numTolerance) {
+				//datediff calculatuion
+				var String prevItemSavedDateString=statValues.get(2)
+				var DateTime origStartDate = parse(prevItemSavedDateString)
+				var DateTime origEndDate = now
+				if (!origStartDate.toLocalDate.equals(origEndDate.toLocalDate)) {
+					logInfo("rules.stat", "MultiDay Update, because:" + origStartDate.toLocalDate +" not equals " + origEndDate.toLocalDate)
+					//multiple days, split dates
+					//write first day	    
+				    var String logMessage = itemName + ";" + origStartDate + ";" + origStartDate.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59)+";"+prevItemStateString+";"+prevItemStateString+";"+"0"  
+				    logItem.sendCommand(logMessage)	
+				    logInfo("stat", logMessage)		    
+				    var DateTime startDate = origStartDate.plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0)
+				    var DateTime endDate = startDate.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59)	    	    
+				    do  {	
+				    	//write days between two date
+				    	logMessage = itemName + ";" + startDate + ";" + endDate+";"+prevItemStateString+";"+prevItemStateString+";"+"0";    	
+				    	logItem.sendCommand(logMessage)
+				    	logInfo("stat", logMessage)  	
+				    	startDate=startDate.plusDays(1)
+				    	endDate = startDate.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59)
+				    } while (endDate.isBefore(origEndDate))
+				    //write last day
+		    		logMessage = itemName + ";" + startDate + ";" + origEndDate.withYear(endDate.getYear).withMonthOfYear(endDate.getMonthOfYear).withDayOfMonth(endDate.getDayOfMonth)+";"+prevItemStateString+";"+itemStateString+";"+diff
+		    		logItem.sendCommand(logMessage)
+		    		logInfo("stat", logMessage)	        	
+	    		} else {
+	    			//one day interval
+	    			val String logMessage = itemName + ";" + origStartDate + ";" + origEndDate+";"+prevItemStateString+";"+itemStateString+";"+diff 
+	    			logItem.sendCommand(logMessage)
+	    			logInfo("stat", logMessage)
+	    		}
+			}												
+    	}    													
+	}
+    
+    true
+    ]
+
+rule "statLibingroomTempChange"
+when 
+Item htTempLivingroom changed
+then
+	processItemChange.apply(htTempLivingroom, statTempLivingroom, true, 0.2)	
+end
+
+rule "statDungeonTempChange"
+when 
+Item htTempDungeon changed
+then
+	processItemChange.apply(htTempDungeon, statTempDungeon, true, 0.2)	
+end
+
+
+rule "statDesiredTempLivingroom"
+when 
+Item htDesiredTemp changed
+then
+	processItemChange.apply(htDesiredTempLivingroom, statDesiredTempLivingroom, true, doubleNullVal)	
+end
+
+rule "statDesiredTempDungeon"
+when 
+Item htDesiredTempDungeon changed
+then
+	processItemChange.apply(htDesiredTempDungeon, statDesiredTempDungeon, true, doubleNullVal)	
+end
+
+rule "statHeatingChangeLivingroom"
+when 
+Item htRelayHeaterLivingroom changed
+then
+	processItemChange.apply(htRelayHeaterLivingroom, statRelayHeaterLivingroom, false, doubleNullVal)	
+end
+
+rule "statHeatingChangeBoiler"
+when 
+Item htRelayHeaterBoiler changed
+then
+	processItemChange.apply(htRelayHeaterBoiler, statRelayHeaterBoiler, false, doubleNullVal)	
+end
+
+rule "statHeatingChangeDungeon"
+when 
+Item htRelayHeaterDungeon changed
+then
+	processItemChange.apply(htRelayHeaterDungeon, statRelayHeaterDungeon, false, doubleNullVal)	
+end
+
+rule "statAgiAtHome"
+when 
+Item locAgiAtHome changed
+then
+	processItemChange.apply(locAgiAtHome, statAgiAtHome, false, doubleNullVal)	
+end
+
+rule "statVojiAtHome"
+when 
+Item locVojiAtHome changed
+then
+	processItemChange.apply(locVojiAtHome, statVojiAtHome, false, doubleNullVal)	
+end
+
+rule "statSomeOneAtHome"
+when 
+Item locSomeAtHome changed
+then
+	processItemChange.apply(locSomeAtHome, statSomeAtHome, false, doubleNullVal)	
+end
+
+rule "statVojiPcUp"
+when 
+Item Sh_VojiPcIsUp changed
+then
+	processItemChange.apply(Sh_VojiPcIsUp, statVojiPcIsUp, false, doubleNullVal)	
+end
+
+

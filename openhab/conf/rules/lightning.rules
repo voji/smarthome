@@ -1,0 +1,187 @@
+import java.util.concurrent.locks.ReentrantLock
+import java.util.Random
+
+var ReentrantLock lightLock  = new ReentrantLock()
+var Timer frontdoorLightTimer = null
+var Timer bedroomLightTimer = null
+val Random rand = new Random
+
+/*
+ * turn on or off lights
+ */
+val Functions$Function3<DimmerItem, Integer, ReentrantLock, Boolean> milight = [
+    DimmerItem lightDimmerItem,    
+    Integer brightness,
+    ReentrantLock lightLock 
+    |
+    val Long lampCommandDelay = 300L
+    lightLock.lock()    	
+	try {    
+	    if (brightness == 0) {
+	    	logInfo("rules.lightning", "Turning off light: " + lightDimmerItem.name)
+			Thread::sleep(lampCommandDelay)
+			if (lightDimmerItem!=null) {
+				sendCommand(lightDimmerItem, brightness)			
+			}							    	
+	    } else {
+	    	logInfo("rules.lightning", "Turning on light: " + lightDimmerItem.name)
+	    	Thread::sleep(lampCommandDelay)	    	
+		    sendCommand(lightDimmerItem, brightness)			
+	    }
+	   } catch (Exception e) {
+	   	logInfo("rules.lightning", "milight exception.", e)
+	   } finally {
+			lightLock.unlock()
+	   }
+	   return true
+    ]
+
+
+val Functions$Function2<Timer, String, Boolean> cancelTimer = [
+	Timer timer,
+	String name 
+	|
+	if (timer != null) {
+		logInfo("rules.lightning", "Cancel timer instance: " + name)
+	    timer.cancel
+	}
+	return true
+]
+
+val Functions$Function1<DimmerItem, OnOffType> lightState = [
+	DimmerItem lightDimmerItem	
+	|
+	if (lightDimmerItem.state > 0) {
+		return ON
+	} else {
+		return OFF
+	}
+]
+
+rule "MorningLight"
+when 
+    Time cron "0 15 8 ? * MON-FRI *"   // every weekday 08:15, calculated by: http://www.cronmaker.com/
+then
+    if (confWakeupLight.state == ON) {
+		logInfo("rules.lightning", "Initializing wakeup light")
+		milight.apply(lightBedroomLeft, 1, lightLock)
+    	milight.apply(lightBedroomRight, 1, lightLock)	
+		
+		var int dimmerVal = 1		
+		while(dimmerVal < 99) {
+			if (confWakeupLight.state != ON || 
+				(lightState.apply(lightBedroomLeft) == OFF && lightState.apply(lightBedroomRight) == OFF)
+			) {
+				//cancel wakeup process
+				logInfo("rules.lightning", "Wakeup light configuration or laps off, canceling dimmer")
+				dimmerVal=100
+			} else {
+				dimmerVal=dimmerVal+1
+				if (lightState.apply(lightBedroomLeft) == ON) {					
+					milight.apply(lightBedroomLeft, dimmerVal, lightLock)	
+				}
+				if (lightState.apply(lightBedroomRight) == ON) {
+					milight.apply(lightBedroomRight, dimmerVal, lightLock)
+				}				
+				Thread::sleep(20000)					
+			}
+		}
+		
+		logInfo("rules.lightning", "Wakeup light sequence completed, creating wakeup light off timer")
+		bedroomLightTimer = createTimer(now.plusMinutes(10)) [|
+				bedroomLightTimer = null
+				logInfo("rules.lightning", "Turning off wakeup ligths (timer)")
+				milight.apply(lightBedroomLeft, 0, lightLock)
+				milight.apply(lightBedroomRight, 0, lightLock)
+        ]
+	} else {
+		logInfo("rules.lightning", "Wakeup light disabled")
+	}
+end
+
+
+rule "SomeoneArrivingHomeTest"
+when 
+	Item Sh_VojiPcIsUp changed to OFF
+then	    
+	logInfo("rules.lightning", "Someone arriving home test triggered")
+end 
+
+rule "VacationLights"
+when
+	Time cron "0 0 19 1/1 * ? *"
+then 
+	if (confVacation.state == ON) {
+		var int randomNum = rand.nextInt(60)
+							
+		logInfo("rules.lightning", "Creating vacation light timers")
+		//livingroom 19:30-
+		createTimer(now.plusMinutes(30 + randomNum)) [|	 			
+			logInfo("rules.lightning", "Turning on living room light (vacation mode)")
+			milight.apply(lightLivingRoom, 90, lightLock)
+			
+			var int toffrandomNum = rand.nextInt(30)
+			createTimer(now.plusMinutes(30 + toffrandomNum)) [|	 			
+				logInfo("rules.lightning", "Turning off living room light (vacation mode)")
+				milight.apply(lightLivingRoom, 0, lightLock)
+			]
+		 ]
+		 
+		 var int randomNumBedroom = rand.nextInt(60)
+		 createTimer(now.plusMinutes(30 + randomNum + 30 + randomNumBedroom)) [|	 			
+			logInfo("rules.lightning", "Turning on bedroom room light (vacation mode)")
+			milight.apply(lightBedroomRight, 90, lightLock)
+			
+			var int toffrandomNum = rand.nextInt(30)
+			createTimer(now.plusMinutes(30 + toffrandomNum)) [|	 			
+				logInfo("rules.lightning", "Turning off bedroom room light (vacation mode)")
+				milight.apply(lightBedroomRight, 0, lightLock)
+			]
+		 ]
+	 }
+end
+
+
+rule "SomeoneArrivingHome"
+when 
+	Item locVojiAtHome changed to ON or 
+	Item locAgiAtHome changed to ON or 
+	Item Sh_VojiPcIsUp changed to OFF
+then	    
+	logInfo("rules.lightning", "Someone arriving home mode triggered")
+	if (now.isBefore((astSunriseTime.state as DateTimeType).calendar.timeInMillis)
+		||
+		now.isAfter((astSunsetTime.state as DateTimeType).calendar.timeInMillis)
+	) {
+		logInfo("rules.lightning", "Someone arriving home, sun is down, turning on lights")		
+		if (lightState.apply(lightFrontdoor)==OFF) {			
+			milight.apply(lightFrontdoor, 99, lightLock)						
+						
+	    	logInfo("rules.lightning", "Setup welcome light timeout")
+	 		frontdoorLightTimer = createTimer(now.plusMinutes(7)) [|	 			
+				logInfo("rules.lightning", "Welcome light timeout, turning off lights")
+				frontdoorLightTimer=null
+				milight.apply(lightFrontdoor, 0, lightLock)
+			 ]
+			} else {
+				logInfo("rules.lightning", "Outdoor light already on, do nothing")
+			} 
+		 } else {
+			logInfo("rules.lightning", "Someone arriving home, sun is up, do nothing")
+		}
+end
+
+rule "AutoTurnOffLights"
+when 
+	Item locSomeAtHome changed to OFF or
+	Item confVacation  changed to ON
+then							
+		logInfo("rules.lightning", "Nobody at home, turning off lights")	    	    	
+    	milight.apply(lightBedroomLeft, 0, lightLock)
+    	milight.apply(lightBedroomRight, 0, lightLock)
+    	
+    	milight.apply(lightLivingRoom, 0, lightLock)
+    	
+    	milight.apply(lightFrontdoor, 0, lightLock)	    		    	
+		
+end
