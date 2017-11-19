@@ -1,0 +1,10 @@
+//WIFI data
+const char* wifi_ssid = "ssid";
+const char* wifi_password = "pass";
+const IPAddress wifi_ip = IPAddress(192,168,1,xx); 
+
+//mqtt
+const char* mqtt_user = "user";
+const char* mqtt_password = "pass";
+const IPAddress mqtt_ip = IPAddress(192, 168, 1, xx);
+const int mqtt_port = 1883;
