@@ -1,5 +1,6 @@
 /openhab/conf/items/private.items
 /openhab/conf/services
+/openhab/conf/things
 /openhab/conf/scripts/location.script
 /arduino/vh_dungeon/auth.h
 /arduino/vh_garden/auth.h
