@@ -20,4 +20,8 @@ Items {
 	
 	htTempDiffLivingroom : strategy = everyMinute
 	htTempDiffDungeon : strategy = everyMinute
+	
+	htPIDLivingroom : strategy = everyMinute
+	htPIDDungeon : strategy = everyMinute
+	htPIDBoiler : strategy = everyMinute
 }

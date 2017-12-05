@@ -12,12 +12,14 @@ val Functions$Function4<GenericItem, GenericItem, Boolean, Double, Boolean> proc
     
     val String itemName=item.name
 	val String itemStateString = item.state.toString
-	val HistoricItem itemPrevStateHi = item.previousState(true)
+	
+	//history item require item persistence
+	/*val HistoricItem itemPrevStateHi = item.previousState(true)
 	var org.eclipse.smarthome.core.types.State itemPrevState = NULL;
 	if (itemPrevStateHi!=null && itemPrevStateHi!=NULL) {
 		itemPrevState = itemPrevStateHi.state;
 	}	
-	logInfo("rules.stat", "Item: " + itemName + " current state: " + itemStateString + " previous state: " + itemPrevState )
+	logInfo("rules.stat", "Item: " + itemName + " current state: " + itemStateString + " previous state: " + itemPrevState )*/
 	
     if (logItem.state==NULL || logItem.state.toString.isEmpty()) {
 		logInfo("rules.stat", "Initializing stat: " + itemName)			    
@@ -50,7 +52,15 @@ val Functions$Function4<GenericItem, GenericItem, Boolean, Double, Boolean> proc
 				//datediff calculatuion
 				var String prevItemSavedDateString=statValues.get(2)
 				var DateTime origStartDate = parse(prevItemSavedDateString)
-				var DateTime origEndDate = now
+				val DateTime origEndDate = now
+				
+				//check and fix wrong (future) serialized date values 
+				if (origStartDate.isAfterNow) {
+					logInfo("rules.stat", "Fix previous item start date:" + origStartDate +" -> " + now)
+					origStartDate = now
+				}
+				
+				
 				if (!origStartDate.toLocalDate.equals(origEndDate.toLocalDate)) {
 					logInfo("rules.stat", "MultiDay Update, because:" + origStartDate.toLocalDate +" not equals " + origEndDate.toLocalDate)
 					//multiple days, split dates
@@ -78,8 +88,8 @@ val Functions$Function4<GenericItem, GenericItem, Boolean, Double, Boolean> proc
 	    			logItem.sendCommand(logMessage)
 	    			logInfo("stat", logMessage)
 	    		}
-			}												
-    	}    													
+			}
+    	}
 	}
     
     true

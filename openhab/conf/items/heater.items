@@ -9,14 +9,13 @@ Number htDesiredTempLivingroom	"Livingroom desired temperature [%.1f °C]" <heat
 Number htDesiredTempDungeon		"Dungeon desired temperature [%.1f °C]"    <heating>		(grpHeating, grpDungeon, grpHeaterDungeon, grpPersist)
 Number htDesiredTempBoiler		"Boiler desired temperature [%.1f °C]"     <heating>		(grpHeating, grpHeaterBoiler, grpPersist)
 
-Number htDesiredHystLivingroom	"Livingroom desired hysteresis [%.1f °C]" <heating>		(grpHeating, grpLivingroom, grpHeaterLivingroom, grpPersist)
-Number htDesiredHystDungeon		"Dungeon desired hysteresis [%.1f °C]"    <heating>		(grpHeating, grpDungeon, grpHeaterDungeon, grpPersist)
-Number htDesiredHystBoiler		"Boiler desired hysteresis [%.1f °C]"     <heating>		(grpHeating, grpHeaterBoiler, grpPersist)
-
 Switch htRelayHeaterLivingroom	"Upper level heater [%s]"				<smartheater>	(grpHeating, grpHeaterLivingroom)	{ mqtt=">[mq:wemos_dungeon_relay0:state:*:default]" }
 Switch htRelayHeaterDungeon		"Dungeon heater [%s]" 					<smartheater>	(grpHeating, grpHeaterDungeon)	{ mqtt=">[mq:wemos_dungeon_relay1:state:*:default]" }
 Switch htRelayHeaterBoiler		"Dungeon Boiler [%s]" 					<smartheater>	(grpHeating, grpHeaterBoiler)	{ mqtt=">[mq:wemos_dungeon_relay2:state:*:default]" }
 
+Number htPIDLivingroom			"Livingroom PID value [%.1f]" <heating>		(grpHeating, grpHeaterLivingroom)
+Number htPIDDungeon				"Dungeon PID value [%.1f]" <heating>		(grpHeating, grpHeaterDungeon)
+Number htPIDBoiler				"Boiler PID value [%.1f]" <heating>		(grpHeating, grpHeaterBoiler)
 
 DateTime htRelayHeaterLastUpdateLivingroom	"Upper level heater last upd [%1$ta %1$tR]"	<smartheater>	(grpHeating, grpHeaterLivingroom, grpPersist)
 DateTime htRelayHeaterLastUpdateDungeon	"Dungeon heater last upd [%1$ta %1$tR]"	<smartheater>	(grpHeating, grpHeaterDungeon, grpPersist)

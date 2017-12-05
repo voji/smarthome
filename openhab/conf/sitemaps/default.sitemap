@@ -4,10 +4,10 @@ sitemap default label="szivu6"
 		Switch item=confVacation	visibility=[confVacation==ON] labelcolor=[ON="green"]
 		Slider item=lightFrontdoor
 		Slider item=lightLivingRoom
-		Setpoint item=lightBedroomLeft minValue=0 maxValue=100 step=10
-		Setpoint item=lightBedroomRight minValue=0 maxValue=100 step=10		
+		Setpoint item=lightBedroomLeft minValue=0 maxValue=100 step=10.0
+		Setpoint item=lightBedroomRight minValue=0 maxValue=100 step=10.0		
 		Setpoint item=htDesiredTempLivingroom icon="heating" minValue=10 maxValue=26 step=0.5
-		Setpoint item=htDesiredTempDungeon icon="heating" minValue=10 maxValue=26 step=1
+		Setpoint item=htDesiredTempDungeon icon="heating" minValue=10 maxValue=26 step=0.5
 		Switch item=Sh_VojiPcWol icon="computer" label="Voji Pc" mappings=[ON="Wake!"]
 	}
 	
@@ -50,12 +50,9 @@ sitemap default label="szivu6"
 				Text item=htTempBoiler
 			}			
 			Frame label="Heater control" icon="temperature" {				
-				Text item=htDesiredTempLivingroom
-				Text item=htDesiredHystLivingroom
-				Text item=htDesiredTempDungeon
-				Text item=htDesiredHystDungeon
-				Text item=htDesiredTempBoiler
-				Text item=htDesiredHystBoiler
+				Setpoint item=htDesiredTempLivingroom icon="heating" minValue=10 maxValue=26 step=0.5
+				Setpoint item=htDesiredTempDungeon icon="heating" minValue=10 maxValue=26 step=0.5
+				Setpoint item=htDesiredTempBoiler icon="heating" minValue=10 maxValue=70 step=5
 				Switch item=htRelayHeaterLivingroom
 				Switch item=htRelayHeaterDungeon
 				Switch item=htRelayHeaterBoiler
@@ -79,7 +76,12 @@ sitemap default label="szivu6"
 				Chart item=htTempLivingroom period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
 				Chart item=htTempLivingroom period=D visibility=[htTempChartPeriod==1]
 				Chart item=htTempLivingroom period=W visibility=[htTempChartPeriod==2]				
-			}	
+			}
+			Frame label="Livingroom PID" icon="temperature" {
+				Chart item=htPIDLivingroom period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htPIDLivingroom period=D visibility=[htTempChartPeriod==1]
+				Chart item=htPIDLivingroom period=W visibility=[htTempChartPeriod==2]
+			}
 			Frame label="Livingroom desired temperature" icon="temperature" {
 				Chart item=htDesiredTempLivingroom period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
 				Chart item=htDesiredTempLivingroom period=D visibility=[htTempChartPeriod==1]
@@ -94,12 +96,17 @@ sitemap default label="szivu6"
 				Chart item=htTempDiffLivingroom period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
 				Chart item=htTempDiffLivingroom period=D visibility=[htTempChartPeriod==1]
 				Chart item=htTempDiffLivingroom period=W visibility=[htTempChartPeriod==2]
-			}						
+			}
 			Frame label="Dungeon temperature" icon="temperature" {
 				Chart item=htTempDungeon period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
 				Chart item=htTempDungeon period=D visibility=[htTempChartPeriod==1]
 				Chart item=htTempDungeon period=W visibility=[htTempChartPeriod==2]				
-			}	
+			}
+			Frame label="Dungeon PID" icon="temperature" {
+				Chart item=htPIDDungeon period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htPIDDungeon period=D visibility=[htTempChartPeriod==1]
+				Chart item=htPIDDungeon period=W visibility=[htTempChartPeriod==2]
+			}			
 			Frame label="Dungeon desired temperature" icon="temperature" {
 				Chart item=htDesiredTempDungeon period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
 				Chart item=htDesiredTempDungeon period=D visibility=[htTempChartPeriod==1]
@@ -119,6 +126,11 @@ sitemap default label="szivu6"
 				Chart item=htTempBoiler period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
 				Chart item=htTempBoiler period=D visibility=[htTempChartPeriod==1]
 				Chart item=htTempBoiler period=W visibility=[htTempChartPeriod==2]				
+			}
+			Frame label="Boiler PID" icon="temperature" {
+				Chart item=htPIDBoiler period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
+				Chart item=htPIDBoiler period=D visibility=[htTempChartPeriod==1]
+				Chart item=htPIDBoiler period=W visibility=[htTempChartPeriod==2]
 			}
 			Frame label="Boiler heating state" icon="temperature" {
 				Chart item=htRelayHeaterBoiler period=h visibility=[htTempChartPeriod==0, htTempChartPeriod=="Uninitialized"]
@@ -141,30 +153,19 @@ sitemap default label="szivu6"
 			
 			Switch item=confPredictBasedTempLivingroom 
 			Setpoint item=confActiveTempLivingroom icon="heating" minValue=10 maxValue=26 step=0.5
-			Setpoint item=confActiveHystLivingroom icon="heating" minValue=0.5 maxValue=10 step=0.5
 			Setpoint item=confPassiveTempLivingroom icon="heating" minValue=10 maxValue=26 step=1
-			Setpoint item=confPassiveHystLivingroom icon="heating" minValue=1 maxValue=10 step=1
 			Setpoint item=confVacationTempLivingroom icon="heating" minValue=10 maxValue=26 step=1
-			Setpoint item=confVacationHystLivingroom icon="heating" minValue=1 maxValue=10 step=1
 			
 			Switch item=confPredictBasedTempDungeon
 			Setpoint item=confActiveTempDungeon icon="heating" minValue=10 maxValue=26 step=1
-			Setpoint item=confActiveHystDungeon icon="heating" minValue=0.5 maxValue=10 step=0.5
 			Setpoint item=confPassiveTempDungeon icon="heating" minValue=10 maxValue=26 step=1
-			Setpoint item=confPassiveHystDungeon icon="heating" minValue=1 maxValue=10 step=1
 			Setpoint item=confVacationTempDungeon icon="heating" minValue=10 maxValue=26 step=1
-			Setpoint item=confVacationHystDungeon icon="heating" minValue=1 maxValue=10 step=1
 			
 			Switch item=confPredictBasedTempBoiler
 			Setpoint item=htDesiredTempBoiler icon="heating" minValue=10 maxValue=70 step=5
 			Setpoint item=confActiveTempBoiler icon="heating" minValue=10 maxValue=70 step=5
-			Setpoint item=confActiveHystBoiler icon="heating" minValue=5 maxValue=20 step=5
 			Setpoint item=confPassiveTempBoiler icon="heating" minValue=10 maxValue=70 step=5
-			Setpoint item=confPassiveHystBoiler icon="heating" minValue=5 maxValue=20 step=5
 			Setpoint item=confVacationTempBoiler icon="heating" minValue=10 maxValue=70 step=5
-			Setpoint item=confVacationHystBoiler icon="heating" minValue=5 maxValue=20 step=5
-			
-			
 			
 			
 			Switch item=htClearLivingroomTempCache mappings=[ON="Clear"]

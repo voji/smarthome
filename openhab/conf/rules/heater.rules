@@ -1,12 +1,20 @@
+import java.util.ArrayList
 
 
-import org.joda.time.DateTime
+//use array instead of variables (in xbase not able to create data class) 
+val ArrayList<Float> pidParamsLivingroom =  newArrayList()
+val ArrayList<Float> pidParamsDungeon =  newArrayList()
+val ArrayList<Float> pidParamsBoiler =  newArrayList()
+
 
 var Number lastTempLivingroom = -1
 var Number lastTempDungeon = -1
 
-val Functions$Function2<GroupItem, Number, Boolean> boilerControl = [
+ 
+
+val Functions$Function3<GroupItem, Number, Number, Boolean> boilerControl = [
     GroupItem  heaterGroup,
+    Number htDesiredHyst,
     Number elan
     |
     
@@ -20,12 +28,12 @@ val Functions$Function2<GroupItem, Number, Boolean> boilerControl = [
     heaterGroup.members.forEach[ item |
     	logInfo("rules.heater", "Group item: "+ item.name)
     ]*/
-
+          
     val Number htTempVal = heaterGroup.members.findFirst[ name.equals( "htTemp" + itemName)].state as DecimalType
     val Number htDesiredTempVal = heaterGroup.members.findFirst[ name.equals( "htDesiredTemp" + itemName)].state as DecimalType
-    val Number htDesiredHyst = heaterGroup.members.findFirst[ name.equals( "htDesiredHyst" + itemName)].state as DecimalType
     val SwitchItem htRelayHeater = heaterGroup.members.findFirst[ name.equals( "htRelayHeater" + itemName)] as SwitchItem
     val DateTimeItem htRelayHeaterLastUpdate = heaterGroup.members.findFirst[ name.equals( "htRelayHeaterLastUpdate" + itemName)] as DateTimeItem
+    
     
     var DateTimeType htRelayHeaterLastUpdateVal = new DateTimeType(now.minusHours(1).toCalendar(null))
     
@@ -35,31 +43,79 @@ val Functions$Function2<GroupItem, Number, Boolean> boilerControl = [
     	htRelayHeaterLastUpdateVal =  htRelayHeaterLastUpdate.state as DateTimeType
     }
 	
-	//do not check or modify values within 3 minute
-	val DateTime lastUpdateDate = new DateTime(htRelayHeaterLastUpdateVal.calendar)
-	if (lastUpdateDate.isBefore(now.minusMinutes(3))) {
-		if (htTempVal < 3) {
-			logInfo("rules.heater", "Temperature invalid, heating disabled. Current temp: "+ htTempVal + " Target temp: " + htDesiredTempVal)
-			sendCommand(htRelayHeater,OFF)
-			return false;
-		}
-		if (htTempVal < (htDesiredTempVal - htDesiredHyst)) {
-		   //turn on heater
-		   if (htRelayHeater.state != ON) {
-			   sendCommand(htRelayHeater,ON)		           
-			   htRelayHeaterLastUpdate.postUpdate(new DateTimeType(now.toCalendar(null)))
-			   logInfo("rules.heater", "Start " + itemName + " heating. Current temp: "+ htTempVal + " Target temp: " + htDesiredTempVal)
-		   }
-		} else if (htTempVal + elan >= htDesiredTempVal) {
-			   sendCommand(htRelayHeater,OFF)		           
-			   htRelayHeaterLastUpdate.postUpdate(new DateTimeType(now.toCalendar(null)))
-			   logInfo("rules.heater", "Stop " + itemName + " heating. Current temp: "+ htTempVal + " Target temp: " + htDesiredTempVal)
-		}
-	}        
+	if (htTempVal < 3) {
+		logInfo("rules.heater", "Temperature invalid, heating disabled. Current temp: "+ htTempVal + " Target temp: " + htDesiredTempVal)
+		sendCommand(htRelayHeater,OFF)
+		return false;
+	}
+	if (htTempVal < (htDesiredTempVal - htDesiredHyst)) {
+	   //turn on heater
+	   if (htRelayHeater.state != ON) {
+		   sendCommand(htRelayHeater,ON)		           
+		   htRelayHeaterLastUpdate.postUpdate(new DateTimeType(now.toCalendar(null)))
+		   logInfo("rules.heater", "Start " + itemName + " heating. Current temp: "+ htTempVal + " Target temp: " + htDesiredTempVal)
+	   }
+	} else if (htTempVal + elan >= htDesiredTempVal) {
+		   sendCommand(htRelayHeater,OFF)		           
+		   htRelayHeaterLastUpdate.postUpdate(new DateTimeType(now.toCalendar(null)))
+		   logInfo("rules.heater", "Stop " + itemName + " heating. Current temp: "+ htTempVal + " Target temp: " + htDesiredTempVal)
+	}
+	       
 	
 
-	return true;
+	return true
 ]
+
+val Functions$Function1<GroupItem, Boolean> boilerControlPID = [
+    GroupItem  heaterGroup
+    |
+    
+    val String itemName = heaterGroup.name.substring(9)
+    
+    val SwitchItem htRelayHeater = heaterGroup.members.findFirst[ name.equals( "htRelayHeater" + itemName)] as SwitchItem
+    val DateTimeItem htRelayHeaterLastUpdate = heaterGroup.members.findFirst[ name.equals( "htRelayHeaterLastUpdate" + itemName)] as DateTimeItem
+    val Number htTempVal = heaterGroup.members.findFirst[ name.equals( "htTemp" + itemName)].state as DecimalType
+    val Number htPidVal = heaterGroup.members.findFirst[ name.equals( "htPID" + itemName)].state as DecimalType
+    
+    var DateTimeType htRelayHeaterLastUpdateVal = new DateTimeType(now.minusHours(1).toCalendar(null))
+    
+    if (htRelayHeaterLastUpdate.state == NULL) {
+    	htRelayHeaterLastUpdate.postUpdate(htRelayHeaterLastUpdateVal)
+    } else {
+    	htRelayHeaterLastUpdateVal =  htRelayHeaterLastUpdate.state as DateTimeType
+    }
+		
+	if (htTempVal < 3) {
+		logInfo("rules.heater", "Temperature invalid, heating disabled. Current temp: "+ htTempVal)
+		sendCommand(htRelayHeater,OFF)
+		return false;
+	}
+	var OnOffType targetState = null
+	if (htPidVal > 0) {
+	   //turn on heater
+	   if (htRelayHeater.state != ON) {
+		   targetState = ON
+	   }
+	} else if (htRelayHeater.state != OFF) {
+		   targetState = OFF
+	}	
+	
+	//do not moify values within 1 minute
+	//val DateTime lastUpdateDate = new DateTime(htRelayHeaterLastUpdateVal.calendar)
+		
+	if (targetState != null) {
+		//if (lastUpdateDate.isBefore(now.minusMinutes(1))) {
+		   sendCommand(htRelayHeater,targetState)		           
+		   htRelayHeaterLastUpdate.postUpdate(new DateTimeType(now.toCalendar(null)))
+		   logInfo("rules.heater", itemName + " heating is " + targetState + ". Current temp: "+ htTempVal)
+		/* } else {
+			logInfo("rules.heater", "Boiler modified within 1 min. command ignored: " + itemName + ". Current temp: "+ htTempVal)
+		}*/
+	}
+
+	return true
+]
+
 
 val Functions$Function2<GroupItem, SwitchItem, Boolean> updateTargetTemp = [
     GroupItem  heaterGroup,
@@ -68,7 +124,6 @@ val Functions$Function2<GroupItem, SwitchItem, Boolean> updateTargetTemp = [
     val String itemName = heaterGroup.name.substring(9) 
     
     val NumberItem htDesiredTemp = heaterGroup.members.findFirst[ name.equals( "htDesiredTemp" + itemName)] as NumberItem
-    val NumberItem htDesiredHyst = heaterGroup.members.findFirst[ name.equals( "htDesiredHyst" + itemName)] as NumberItem
     
     val Number htDesiredTempVal = heaterGroup.members.findFirst[ name.equals( "htDesiredTemp" + itemName)].state as Number
     val OnOffType confPredictBasedTempVal = heaterGroup.members.findFirst[ name.equals( "confPredictBasedTemp" + itemName)].state as OnOffType
@@ -77,20 +132,14 @@ val Functions$Function2<GroupItem, SwitchItem, Boolean> updateTargetTemp = [
     val Number confActiveTempVal = heaterGroup.members.findFirst[ name.equals( "confActiveTemp" + itemName)].state as Number
     val Number confPassiveTempVal = heaterGroup.members.findFirst[ name.equals( "confPassiveTemp" + itemName)].state as Number
     val Number confVacationTempVal = heaterGroup.members.findFirst[ name.equals( "confVacationTemp" + itemName)].state as Number
-    
-    val Number confActiveHystVal = heaterGroup.members.findFirst[ name.equals( "confActiveHyst" + itemName)].state as Number
-    val Number confPassiveHystVal = heaterGroup.members.findFirst[ name.equals( "confPassiveHyst" + itemName)].state as Number
-    val Number confVacationHystVal = heaterGroup.members.findFirst[ name.equals( "confVacationHyst" + itemName)].state as Number
-    
+      
     if (confVacation.state == ON) {
     	logInfo("rules.heater", "Vacation mode on, setting " + itemName +" temperature to: " + confVacationTempVal)
-    	htDesiredHyst.postUpdate(confVacationHystVal)
     	htDesiredTemp.postUpdate(confVacationTempVal)
     } else {
     	if (activeMode.state == ON) {
     		if (htDesiredTempVal < confActiveTempVal) {
 	    		logInfo("rules.heater", "Active mode, setting " + itemName +" temperature to: " + confActiveTempVal)
-		    	htDesiredHyst.postUpdate(confActiveHystVal)
 		    	htDesiredTemp.postUpdate(confActiveTempVal)
 	    	} else {
 	    		logInfo("rules.heater", "Active mode, but desired temp higher, do nothing")
@@ -100,19 +149,16 @@ val Functions$Function2<GroupItem, SwitchItem, Boolean> updateTargetTemp = [
     			if (prdPredictionVal == ON) {
     				if (htDesiredTempVal < confActiveTempVal) {
 	    				logInfo("rules.heater", "Active mode (prediction based), setting " + itemName +" temperature to: " + confActiveTempVal)
-				    	htDesiredHyst.postUpdate(confActiveHystVal)
 				    	htDesiredTemp.postUpdate(confActiveTempVal)
 			    	} else {
 			    		logInfo("rules.heater", "Active mode (prediction based), but desired temp higher, do nothing")
 			    	}
     			} else {
     				logInfo("rules.heater", "Passive mode (prediction based), setting " + itemName +" temperature to: " + confActiveTempVal)
-    				htDesiredHyst.postUpdate(confPassiveHystVal)
 	    			htDesiredTemp.postUpdate(confPassiveTempVal)
     			}
     		} else {
     			logInfo("rules.heater", "Passive mode (without prediction), setting " + itemName +" temperature to: " + confPassiveTempVal)
-    			htDesiredHyst.postUpdate(confPassiveHystVal)
 	    		htDesiredTemp.postUpdate(confPassiveTempVal)
     		}
     	}
@@ -120,6 +166,61 @@ val Functions$Function2<GroupItem, SwitchItem, Boolean> updateTargetTemp = [
     
     return true
     ]
+
+
+/**
+ * PID implementation
+ * Math: 
+ *  - https://apmonitor.com/pdc/index.php/Main/ProportionalIntegralDerivative 
+ *  - https://en.wikipedia.org/wiki/PID_controller
+ */
+val Functions$Function2<GroupItem, ArrayList<Float>,  Boolean> calculatePID = [
+    GroupItem  heaterGroup,
+    ArrayList<Float> pidParams
+    |
+    
+    val String itemName = heaterGroup.name.substring(9)
+    
+    val Number htTempVal = heaterGroup.members.findFirst[ name.equals( "htTemp" + itemName)].state as DecimalType
+    val Number htDesiredTempVal = heaterGroup.members.findFirst[ name.equals( "htDesiredTemp" + itemName)].state as DecimalType
+    val NumberItem htPID = heaterGroup.members.findFirst[ name.equals( "htPID" + itemName)] as NumberItem
+	val float error = htDesiredTempVal.floatValue - htTempVal.floatValue
+    
+    //extrtact pid params
+    val float kp = pidParams.get(0) //kp
+	val float ki = pidParams.get(1) //ki
+	val float kd = pidParams.get(2) //kd
+	val float windupGuard = pidParams.get(3) //windupGuard
+	val float iTerm = pidParams.get(4) //iTerm
+	val float lastError = pidParams.get(5) //lastError
+    
+    //always use 1
+    //val long currentTime = now.millis    
+    //val float deltaTime = currentTime - lastTime 
+    val float deltaError = error - lastError   
+	    
+    val float PTerm = kp * error
+    var updatedITerm = iTerm + error //or if you calculate with time: (error * deltaTime)
+    
+
+    if (updatedITerm < -windupGuard) {
+        updatedITerm = -windupGuard
+    } else if (updatedITerm > windupGuard) {
+        updatedITerm = windupGuard
+	}
+	
+	pidParams.set(4, updatedITerm) //set prev calc iterm
+	pidParams.set(5, error) //set prev calc error
+	
+    var float dTerm = deltaError   //or if you calculate with time: deltaError / deltaTime
+	
+    val float result = PTerm + (ki * updatedITerm) + (kd * dTerm)
+    htPID.postUpdate(result)
+    
+    return true
+    ]
+
+
 
 rule "SetupLivingRoomTempWhenSomeoneAtHome"
 when 
@@ -155,7 +256,7 @@ then
 	if (htTempLivingroom.state instanceof DecimalType) {
 		val Number currentTemp = htTempLivingroom.state as DecimalType
 		if (lastTempLivingroom!=-1) {
-			logInfo("rules.heater", "Calculating temp diff. Current temp: " + currentTemp + " Last temp: " + lastTempLivingroom + " Diff: "  + (currentTemp - lastTempLivingroom))
+			//logInfo("rules.heater", "Calculating temp diff. Current temp: " + currentTemp + " Last temp: " + lastTempLivingroom + " Diff: "  + (currentTemp - lastTempLivingroom))
 			htTempDiffLivingroom.sendCommand(currentTemp - lastTempLivingroom)
 		} else {
 			logInfo("rules.heater", "Temp diff calculation ignored, last temperature is null, initializing... ")
@@ -173,7 +274,7 @@ then
 	if (htTempDungeon.state instanceof DecimalType) {
 		val Number currentTemp = htTempDungeon.state as DecimalType
 		if (lastTempDungeon!=-1) {
-			logInfo("rules.heater", "Calculating temp diff. Current temp: " + currentTemp + " Last temp: " + lastTempDungeon + " Diff: "  + (currentTemp - lastTempDungeon))
+			//logInfo("rules.heater", "Calculating temp diff. Current temp: " + currentTemp + " Last temp: " + lastTempDungeon + " Diff: "  + (currentTemp - lastTempDungeon))
 			htTempDiffDungeon.sendCommand(currentTemp - lastTempDungeon)
 		} else {
 			logInfo("rules.heater", "Temp diff calculation ignored, last temperature is null, initializing... ")
@@ -181,11 +282,35 @@ then
 		lastTempDungeon = currentTemp
 	} else {
 		logInfo("rules.heater", "Temp diff calculation ignored, temperature value is null")
-	} 
-	
+	}
+end
+
+rule "CalculatePID"
+when 
+    Time cron "0 0/1 * 1/1 * ? *"   // every 1 min, generated by: http://www.cronmaker.com/
+then
+	//init livingroom pid calc params
+	if (pidParamsLivingroom.isEmpty) {
+		pidParamsLivingroom.add(0.2f) //Kp - how aggressively the PID reacts to the current error with setting Proportional Gain
+		pidParamsLivingroom.add(0.0f) //Ki - how aggressively the PID reacts to the current error with setting Integral Gain
+		pidParamsLivingroom.add(0.0f) //Kd - how aggressively the PID reacts to the current error with setting Derivative Gain
+		pidParamsLivingroom.add(10.0f) //windupGuard - prevent overshooting and to increase the accumulated error
+		pidParamsLivingroom.add(0.0f) //iTerm - previous iTerm value
+		pidParamsLivingroom.add(0.0f) //lastError - previous error value
+		
+		pidParamsDungeon.addAll(pidParamsLivingroom)
+		pidParamsBoiler.addAll(pidParamsLivingroom)
+	}
+
+	calculatePID.apply(grpHeaterLivingroom, pidParamsLivingroom)
+	calculatePID.apply(grpHeaterDungeon, pidParamsDungeon)
+	calculatePID.apply(grpHeaterBoiler, pidParamsBoiler)
 end
 
 
+/*
+ * Old elan based thermostat rules
+ 
 rule "LivingRoomThermostat"
 when
     Item htTempLivingroom changed or
@@ -201,11 +326,26 @@ when
 then		
 	boilerControl.apply(grpHeaterDungeon, 0.2f)	
 end
+*/
+
+rule "LivingRoomPIDThermostat"
+when
+    Item htPIDLivingroom changed
+then		
+	boilerControlPID.apply(grpHeaterLivingroom)	
+end
+
+rule "DungeonPIDThermostat"
+when
+    Item htPIDDungeon changed
+then		
+	boilerControlPID.apply(grpHeaterDungeon)	
+end
 
 rule "BoilerThermostat"
 when
     Item htTempBoiler changed or
     Item htDesiredTempBoiler changed
 then		
-	boilerControl.apply(grpHeaterBoiler, 3.0f)	
+	boilerControl.apply(grpHeaterBoiler, 0.5f, 3.0f)	
 end

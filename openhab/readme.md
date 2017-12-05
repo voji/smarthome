@@ -17,6 +17,7 @@
 - rrd4j (http://docs.openhab.org/addons/persistence/rrd4j/readme.html)
 - MiLight (http://docs.openhab.org/addons/bindings/milight1/readme.html)
 - Exec legacy addon (http://docs.openhab.org/addons/bindings/exec1/readme.html)
+- Mail (http://docs.openhab.org/addons/actions/mail/readme.html)
 
 **Log configuration for stat.rules:**
 To add new loggers to oepnhab logging configuration, you need to modify the following file:
