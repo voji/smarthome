@@ -7,7 +7,6 @@ sitemap default label="szivu6"
 		Setpoint item=lightBedroomLeft minValue=0 maxValue=100 step=10.0
 		Setpoint item=lightBedroomRight minValue=0 maxValue=100 step=10.0		
 		Setpoint item=htDesiredTempLivingroom icon="heating" minValue=10 maxValue=26 step=0.5
-		Setpoint item=htDesiredTempDungeon icon="heating" minValue=10 maxValue=26 step=0.5
 		Switch item=Sh_VojiPcWol icon="computer" label="Voji Pc" mappings=[ON="Wake!"]
 	}
 	
@@ -157,9 +156,10 @@ sitemap default label="szivu6"
 			Setpoint item=confVacationTempLivingroom icon="heating" minValue=10 maxValue=26 step=1
 			
 			Switch item=confPredictBasedTempDungeon
-			Setpoint item=confActiveTempDungeon icon="heating" minValue=10 maxValue=26 step=1
+			Setpoint item=confActiveTempDungeon icon="heating" minValue=10 maxValue=26 step=0.5
 			Setpoint item=confPassiveTempDungeon icon="heating" minValue=10 maxValue=26 step=1
 			Setpoint item=confVacationTempDungeon icon="heating" minValue=10 maxValue=26 step=1
+			Setpoint item=confMaxTempDungeon icon="heating" minValue=10 maxValue=26 step=0.5
 			
 			Switch item=confPredictBasedTempBoiler
 			Setpoint item=htDesiredTempBoiler icon="heating" minValue=10 maxValue=70 step=5

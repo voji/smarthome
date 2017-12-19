@@ -15,6 +15,7 @@ Number confActiveTempBoiler 	     "Boiler AutoTemp active value [%.1f °C]" (grp
 Number confPassiveTempLivingroom 	 "LivingRoom AutoTemp leave value [%.1f °C]" 	 (grpConfig, grpHeaterLivingroom)
 Number confPassiveTempDungeon 		 "Dungeon AutoTemp leave value [%.1f °C]" 	 (grpConfig, grpHeaterDungeon)
 Number confPassiveTempBoiler 		 "Boiler AutoTemp passive value [%.1f °C]" 	 (grpConfig, grpHeaterBoiler)
+Number confMaxTempDungeon 		 	 "Dungeon Max temperature [%.1f °C]" 	 (grpConfig, grpHeaterDungeon)
 
 Number confVacationTempLivingroom 	 "LivingRoom AutoTemp vacation value [%.1f °C]" (grpConfig, grpHeaterLivingroom)
 Number confVacationTempDungeon 	     "Dungeon AutoTemp vacation value [%.1f °C]" (grpConfig, grpHeaterDungeon)

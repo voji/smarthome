@@ -332,14 +332,39 @@ rule "LivingRoomPIDThermostat"
 when
     Item htPIDLivingroom changed
 then		
-	boilerControlPID.apply(grpHeaterLivingroom)	
+	boilerControlPID.apply(grpHeaterLivingroom)
+	val Number dungeonTemp = htTempDungeon.state as DecimalType
+	val Number dungeonMaxTemp = confMaxTempDungeon.state as DecimalType
+	val Number dungeonPID = htPIDDungeon.state as DecimalType
+	if (htRelayHeaterLivingroom.state == ON) {
+		if (htRelayHeaterDungeon.state == ON) {
+			if (dungeonTemp >= dungeonMaxTemp) {
+				logInfo("rules.heater", "Turning off dungeon heater, because max dungeon temp reached")
+				sendCommand(htRelayHeaterDungeon, OFF)
+			}
+		} else {
+			if (dungeonTemp < dungeonMaxTemp) {
+				logInfo("rules.heater", "Turning on dungeon heater, because max dungeon temp not reached, and upper level heater is on")
+				sendCommand(htRelayHeaterDungeon, ON)
+			}
+		}
+	} else {
+		if (htRelayHeaterDungeon.state == ON && dungeonPID < 0) {
+			logInfo("rules.heater", "Turning off dungeon heater, because upper level heater is turned off, and temp is higher than desired temp")
+			sendCommand(htRelayHeaterDungeon, OFF)
+		}
+	}	
 end
 
 rule "DungeonPIDThermostat"
 when
     Item htPIDDungeon changed
-then		
-	boilerControlPID.apply(grpHeaterDungeon)	
+then
+	//apply pid based heater control only when the upper level heater is off 
+	// (otherwise upper level heater handle lower level heater too)
+	if (htRelayHeaterLivingroom.state == OFF) {	
+		boilerControlPID.apply(grpHeaterDungeon)
+	}
 end
 
 rule "BoilerThermostat"
