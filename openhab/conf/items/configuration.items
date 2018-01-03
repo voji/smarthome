@@ -4,6 +4,11 @@
 
 Switch confWakeupLight		 "Wakeup light"				<light>	 (grpConfig)
 Switch confVacation			 "Vacation mode [%s]"		<house>	 (grpConfig)
+
+Switch confLocationBasedTempLivingroom 	 "Location based livingroom temp" (grpConfig, grpHeaterLivingroom)
+Switch confLocationBasedTempDungeon 	 "Location based dungeon temp " 			  (grpConfig, grpHeaterDungeon)
+Switch confLocationBasedTempBoiler 	 "Location based dungeon temp " 			  (grpConfig, grpHeaterBoiler)
+
 Switch confPredictBasedTempLivingroom 	 "Predict based livingroom temp" (grpConfig, grpHeaterLivingroom)
 Switch confPredictBasedTempDungeon 	 "Predict based dungeon temp " 			  (grpConfig, grpHeaterDungeon)
 Switch confPredictBasedTempBoiler 	 "Predict based dungeon temp " 			  (grpConfig, grpHeaterBoiler)

@@ -20,15 +20,18 @@
 - Mail (http://docs.openhab.org/addons/actions/mail/readme.html)
 
 **Log configuration for stat.rules:**
-To add new loggers to oepnhab logging configuration, you need to modify the following file:
+To add new loggers to openhab logging configuration, you need to modify the following file:
 */var/lib/openhab2/etc/org.ops4j.pax.logging.cfg*
+	
+	# Route stat log to stat appender
+	log4j2.logger.org.eclipse.smarthome.model.script.stat = INFO, stat
 
     # File appender - stat.log
-    log4j.appender.stat=org.apache.log4j.RollingFileAppender
-    log4j.appender.stat.layout=org.apache.log4j.PatternLayout
-    log4j.appender.stat.layout.ConversionPattern=%m%n
-    log4j.appender.stat.file=${openhab.logdir}/stat.log
-    log4j.appender.stat.append=true
-    log4j.appender.stat.maxFileSize=32MB
-    #log4j.appender.stat.maxBackupIndex=10
+    log4j2.appender.stat=org.apache.log4j.RollingFileAppender
+    log4j2.appender.stat.layout=org.apache.log4j.PatternLayout
+    log4j2.appender.stat.layout.ConversionPattern=%m%n
+    log4j2.appender.stat.file=${openhab.logdir}/stat.log
+    log4j2.appender.stat.append=true
+    log4j2.appender.stat.maxFileSize=32MB
+    #log4j2.appender.stat.maxBackupIndex=10
 

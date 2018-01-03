@@ -6,6 +6,7 @@ then
 	logInfo("rules.default", "Clear livingroom temperature cache.")
 	htClearLivingroomTempCache.postUpdate("ON")
 	htClearDungeonTempCache.postUpdate("ON")
+	htClearOutdoorTempCache.postUpdate("ON")
 	logInfo("rules.default", "Clear living room wemos d1 state")
 	Sh_LivingroomWemosState.postUpdate("OFF")
 	Sh_DungeonWemosState.postUpdate("OFF")

@@ -1,0 +1,1 @@
+Switch 	mvFrontDoor  "Front door movement sensor"	<motion> (grpOutdoor) { mqtt="<[mq:wemos_outdoor_movementsensor:state:default]" }

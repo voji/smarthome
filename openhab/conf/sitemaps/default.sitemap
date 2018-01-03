@@ -46,6 +46,8 @@ sitemap default label="szivu6"
 				Text item=htHumLivingroom
 				Text item=htTempDungeon
 				Text item=htHumDungeon
+				Text item=htTempOutdoor
+				Text item=htHumOutdoor
 				Text item=htTempBoiler
 			}			
 			Frame label="Heater control" icon="temperature" {				
@@ -55,6 +57,9 @@ sitemap default label="szivu6"
 				Switch item=htRelayHeaterLivingroom
 				Switch item=htRelayHeaterDungeon
 				Switch item=htRelayHeaterBoiler
+				Text item=htPIDLivingroom
+				Text item=htPIDDungeon
+				Text item=htPIDBoiler
 				Text item=htRelayHeaterLastUpdateLivingroom
 				Text item=htRelayHeaterLastUpdateDungeon
 				Text item=htRelayHeaterLastUpdateBoiler
@@ -150,26 +155,34 @@ sitemap default label="szivu6"
 			Switch item=confVacation
 			Switch item=confWakeupLight
 			
-			Switch item=confPredictBasedTempLivingroom 
-			Setpoint item=confActiveTempLivingroom icon="heating" minValue=10 maxValue=26 step=0.5
-			Setpoint item=confPassiveTempLivingroom icon="heating" minValue=10 maxValue=26 step=1
-			Setpoint item=confVacationTempLivingroom icon="heating" minValue=10 maxValue=26 step=1
-			
+			Text label="Livingroom..." icon="" {
+				Switch item=confLocationBasedTempLivingroom
+				Switch item=confPredictBasedTempLivingroom 
+				Setpoint item=confActiveTempLivingroom icon="heating" minValue=10 maxValue=26 step=0.5
+				Setpoint item=confPassiveTempLivingroom icon="heating" minValue=10 maxValue=26 step=1
+				Setpoint item=confVacationTempLivingroom icon="heating" minValue=10 maxValue=26 step=1
+			}
+			Text label="Dungeon..." icon="" {
+			Switch item=confLocationBasedTempDungeon
 			Switch item=confPredictBasedTempDungeon
 			Setpoint item=confActiveTempDungeon icon="heating" minValue=10 maxValue=26 step=0.5
 			Setpoint item=confPassiveTempDungeon icon="heating" minValue=10 maxValue=26 step=1
 			Setpoint item=confVacationTempDungeon icon="heating" minValue=10 maxValue=26 step=1
 			Setpoint item=confMaxTempDungeon icon="heating" minValue=10 maxValue=26 step=0.5
+			}
 			
+			Text label="Boiler..." icon="" {
+			Switch item=confLocationBasedTempBoiler
 			Switch item=confPredictBasedTempBoiler
 			Setpoint item=htDesiredTempBoiler icon="heating" minValue=10 maxValue=70 step=5
 			Setpoint item=confActiveTempBoiler icon="heating" minValue=10 maxValue=70 step=5
 			Setpoint item=confPassiveTempBoiler icon="heating" minValue=10 maxValue=70 step=5
 			Setpoint item=confVacationTempBoiler icon="heating" minValue=10 maxValue=70 step=5
-			
+			}
 			
 			Switch item=htClearLivingroomTempCache mappings=[ON="Clear"]
 			Switch item=htClearDungeonTempCache mappings=[ON="Clear"]
+			Switch item=htClearOutdoorTempCache mappings=[ON="Clear"]
 		}
 	}
 			

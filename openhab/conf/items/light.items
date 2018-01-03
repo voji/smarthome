@@ -14,3 +14,4 @@ Dimmer lightBedroomRightC   "Bedroom's color temp (R) [%s %%]"		(grpBedroom)				
 Dimmer lightLivingRoom   	"Living room's brightness [%s %%]"		(grpLivingroom, grpLightB)	 	{milight="bridge1;6;brightness"}
 Color  lightLivingRoomC 	"Living room's color [%s %%]"   		<colorwheel> (grpLivingRoom)    { milight="bridge1;6;rgb" }
 
+	

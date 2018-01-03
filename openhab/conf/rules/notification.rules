@@ -60,6 +60,14 @@ val Functions$Function2<String, Functions$Function1<String, Boolean>, Boolean> n
 	return true
 ]
 
+rule "FrontDoorMovement"
+when
+Item mvFrontDoor changed to ON
+then 
+	if (locSomeAtHome.state == OFF) {
+		sendNotif.apply("Nobody at home, but front door movement detected")
+	}
+end 
 
 rule "HeaterOnTimeTest"
 when
